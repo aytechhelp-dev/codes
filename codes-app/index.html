@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Codes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Codes">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, sans-serif; background: #111; color: #eee; margin: 0 auto; padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); max-width: 560px; }
+  h1 { font-size: 22px; }
+  input, button { width: 100%; padding: 14px; margin: 6px 0; font-size: 16px; border-radius: 10px; border: 1px solid #333; background: #1c1c1c; color: #eee; }
+  button { background: #e50914; border: none; font-weight: 600; cursor: pointer; color: #fff; }
+  button.grau { background: #333; }
+  button.gruen { background: #238636; }
+  button.klein { width: auto; padding: 8px 12px; margin: 0; font-size: 14px; }
+  .karte { background: #1c1c1c; border-radius: 14px; padding: 16px; margin: 12px 0; }
+  .dienst { font-weight: 700; font-size: 18px; }
+  .zeit, .betreff { color: #999; font-size: 13px; margin-top: 4px; }
+  .code { font-size: 40px; letter-spacing: 6px; font-weight: 700; margin: 12px 0; font-family: monospace; }
+  a.link { display: block; text-align: center; padding: 14px; margin-top: 8px; background: #2a6df4; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600; }
+  .fehler { color: #ff6b6b; }
+  .leer { color: #999; text-align: center; padding: 30px 0; }
+  label { display: flex; gap: 8px; align-items: center; color: #aaa; font-size: 14px; }
+  label input { width: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px; border-bottom: 1px solid #333; vertical-align: top; }
+  th { color: #999; }
+  .scroll { max-height: 420px; overflow: auto; }
+  .warn { color: #ff6b6b; font-weight: 600; }
+  .fuss { text-align: center; margin-top: 30px; }
+  .fuss a { color: #555; font-size: 12px; text-decoration: none; }
+  .hinweis { background: #1c1c1c; border-radius: 10px; padding: 12px; font-size: 14px; color: #bbb; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ FREUNDE ============ -->
+<div id="login">
+  <h1>🔑 Codes abrufen</h1>
+  <input id="name" placeholder="Name" autocomplete="username">
+  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password">
+  <label><input type="checkbox" id="merken" checked> Angemeldet bleiben</label>
+  <button onclick="anmelden()">Anmelden</button>
+  <p id="loginFehler" class="fehler"></p>
+  <div id="installHinweis" class="hinweis" style="display:none"></div>
+</div>
+
+<div id="haupt" style="display:none">
+  <h1>Hallo <span id="wer"></span> 👋</h1>
+  <button onclick="laden()">🔄 Aktualisieren</button>
+  <p id="hauptStatus" class="fehler"></p>
+  <div id="liste"></div>
+  <button class="grau" onclick="abmelden()">Abmelden</button>
+</div>
+
+<!-- ============ ADMIN ============ -->
+<div id="adminLogin" style="display:none">
+  <h1>🔒 Admin</h1>
+  <input id="aPw" type="password" placeholder="Admin-Passwort">
+  <input id="aTotp" inputmode="numeric" maxlength="6" placeholder="6-stelliger Code aus Authenticator">
+  <button class="gruen" onclick="adminLogin()">Einloggen</button>
+  <p id="aFehler" class="fehler"></p>
+  <button class="grau" onclick="location.hash=''">Zurück</button>
+</div>
+
+<div id="adminPanel" style="display:none">
+  <h1>Admin-Panel</h1>
+  <div style="display:flex;gap:8px"><button class="grau" onclick="adminLaden()">🔄 Neu laden</button><button class="grau" onclick="adminLogout()">Abmelden</button></div>
+  <div class="karte">
+    <b>Nutzer anlegen / Passwort ändern</b>
+    <input id="nName" placeholder="Name">
+    <input id="nPw" placeholder="Passwort (mind. 6 Zeichen)">
+    <button class="gruen" onclick="nutzerSpeichern()">Speichern</button>
+    <table id="nutzer"></table>
+  </div>
+  <div class="karte">
+    <b>Protokoll (neueste zuerst)</b>
+    <div class="scroll"><table id="log"></table></div>
+  </div>
+  <p id="pFehler" class="fehler"></p>
+</div>
+
+<div class="fuss"><a href="#admin">Admin</a></div>
+
+<script>
+// ↓↓↓ Adresse des Apps Scripts (Web-App-URL, endet auf /exec)
+const API = 'https://script.google.com/macros/s/AKfycbzHczH5NRXG47sfQoksiBbRKWGYqufHh4vwidOKXajP09_EhF07-yQZsJt9tlv8zTr90w/exec';
+
+const $ = id => document.getElementById(id);
+let NAME = '', PW = '', TOKEN = null;
+
+async function api(daten) {
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(daten),
+    credentials: 'omit'
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.fehler || 'Unbekannter Fehler');
+  return j.data;
+}
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function zeigeNur(id) {
+  ['login', 'haupt', 'adminLogin', 'adminPanel'].forEach(x => $(x).style.display = (x === id ? '' : 'none'));
+}
+
+// ---------- Freunde ----------
+try {
+  const s = JSON.parse(localStorage.getItem('codeapp') || 'null');
+  if (s) { NAME = s.n; PW = s.p; $('name').value = NAME; }
+} catch (e) {}
+
+function anmelden() {
+  NAME = $('name').value.trim();
+  PW = $('pw').value;
+  laden();
+}
+
+async function laden() {
+  const imHaupt = $('haupt').style.display !== 'none';
+  (imHaupt ? $('hauptStatus') : $('loginFehler')).textContent = 'Lade …';
+  try {
+    const res = await api({ aktion: 'codes', name: NAME, pw: PW });
+    try { if ($('merken').checked) localStorage.setItem('codeapp', JSON.stringify({ n: NAME, p: PW })); } catch (e) {}
+    $('loginFehler').textContent = ''; $('hauptStatus').textContent = '';
+    zeigeNur('haupt');
+    $('wer').textContent = res.name;
+    const liste = $('liste'); liste.innerHTML = '';
+    if (!res.ergebnisse.length) {
+      liste.appendChild(el('div', 'leer', 'Gerade kein Code da. Fordere ihn am Fernseher/Handy an und tippe dann auf „Aktualisieren“.'));
+      return;
+    }
+    res.ergebnisse.forEach(r => {
+      const k = el('div', 'karte');
+      k.appendChild(el('div', 'dienst', r.dienst));
+      k.appendChild(el('div', 'zeit', new Date(r.zeit).toLocaleString('de-DE')));
+      k.appendChild(el('div', 'betreff', r.betreff));
+      if (r.code) k.appendChild(el('div', 'code', r.code));
+      r.links.forEach(l => {
+        const a = el('a', 'link', l.label);
+        a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
+        a.onclick = () => { api({ aktion: 'klick', name: NAME, pw: PW, dienst: r.dienst, betreff: r.betreff, label: l.label }).catch(() => {}); };
+        k.appendChild(a);
+      });
+      liste.appendChild(k);
+    });
+  } catch (err) {
+    if (imHaupt && !/Passwort|gesperrt|Fehlversuche/.test(err.message)) { $('hauptStatus').textContent = err.message; return; }
+    zeigeNur('login');
+    $('loginFehler').textContent = err.message;
+  }
+}
+
+function abmelden() {
+  try { localStorage.removeItem('codeapp'); } catch (e) {}
+  NAME = ''; PW = ''; $('pw').value = '';
+  zeigeNur('login');
+}
+
+// ---------- Admin ----------
+async function adminLogin() {
+  $('aFehler').textContent = 'Prüfe …';
+  try {
+    TOKEN = await api({ aktion: 'adminLogin', pw: $('aPw').value, totp: $('aTotp').value });
+    $('aPw').value = ''; $('aTotp').value = ''; $('aFehler').textContent = '';
+    zeigeNur('adminPanel');
+    adminLaden();
+  } catch (err) { $('aFehler').textContent = err.message; }
+}
+
+function adminFehler(err) {
+  $('pFehler').textContent = err.message;
+  if (/abgelaufen/.test(err.message)) { TOKEN = null; zeigeNur('adminLogin'); }
+}
+
+function zelle(tr, text, tag) { const c = document.createElement(tag || 'td'); c.textContent = text; tr.appendChild(c); return c; }
+
+async function adminLaden() {
+  try {
+    const d = await api({ aktion: 'adminDaten', token: TOKEN });
+    $('pFehler').textContent = '';
+    const nt = $('nutzer'); nt.innerHTML = '';
+    const h = document.createElement('tr'); ['Name', 'Status', ''].forEach(x => zelle(h, x, 'th')); nt.appendChild(h);
+    d.nutzer.forEach(n => {
+      const tr = document.createElement('tr');
+      zelle(tr, n.name); zelle(tr, n.aktiv ? '✅ aktiv' : '⛔ gesperrt');
+      const b = el('button', 'klein ' + (n.aktiv ? '' : 'gruen'), n.aktiv ? 'Sperren' : 'Freischalten');
+      b.onclick = () => api({ aktion: 'adminAktiv', token: TOKEN, nname: n.name, aktiv: !n.aktiv }).then(adminLaden).catch(adminFehler);
+      zelle(tr, '').appendChild(b);
+      nt.appendChild(tr);
+    });
+    const lt = $('log'); lt.innerHTML = '';
+    const lh = document.createElement('tr'); ['Zeit', 'Wer', 'Aktion', 'Dienst', 'Ergebnis'].forEach(x => zelle(lh, x, 'th')); lt.appendChild(lh);
+    d.log.forEach(r => {
+      const tr = document.createElement('tr');
+      [r[0], r[1], r[2], r[3], r[5]].forEach((v, i) => { const c = zelle(tr, v); if (i === 2 && /FEHLGESCHLAGEN/.test(v)) c.className = 'warn'; });
+      lt.appendChild(tr);
+    });
+  } catch (err) { adminFehler(err); }
+}
+
+async function nutzerSpeichern() {
+  try {
+    await api({ aktion: 'adminNutzer', token: TOKEN, nname: $('nName').value, npw: $('nPw').value });
+    $('nName').value = ''; $('nPw').value = '';
+    adminLaden();
+  } catch (err) { adminFehler(err); }
+}
+
+function adminLogout() {
+  if (TOKEN) api({ aktion: 'adminLogout', token: TOKEN }).catch(() => {});
+  TOKEN = null; location.hash = '';
+}
+
+// ---------- Ansicht wählen ----------
+function route() {
+  if (location.hash === '#admin') { zeigeNur(TOKEN ? 'adminPanel' : 'adminLogin'); }
+  else if (NAME && PW) { laden(); }
+  else { zeigeNur('login'); }
+}
+window.addEventListener('hashchange', route);
+route();
+
+// ---------- Installierbar machen ----------
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); installEvent = e;
+  const h = $('installHinweis'); h.style.display = ''; h.innerHTML = '';
+  const b = el('button', 'gruen', '📲 Als App installieren');
+  b.onclick = async () => { installEvent.prompt(); await installEvent.userChoice; h.style.display = 'none'; };
+  h.appendChild(b);
+});
+if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
+  const h = $('installHinweis'); h.style.display = '';
+  h.textContent = '📲 Als App installieren: Unten auf „Teilen“ (Quadrat mit Pfeil) tippen → „Zum Home-Bildschirm“.';
+}
+</script>
+</body>
+</html>
