@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="standard">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,232 +7,439 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Codes">
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, sans-serif; background: #111; color: #eee; margin: 0 auto; padding: 16px; padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: 90px; max-width: 560px; }
-  h1 { font-size: 22px; margin: 8px 0 14px; }
-  h2 { font-size: 17px; margin: 22px 0 8px; color: #ccc; }
-  input, button, textarea { width: 100%; padding: 14px; margin: 6px 0; font-size: 16px; border-radius: 10px; border: 1px solid #333; background: #1c1c1c; color: #eee; font-family: inherit; }
-  textarea { min-height: 74px; resize: vertical; font-size: 14px; }
-  button { background: #e50914; border: none; font-weight: 600; cursor: pointer; color: #fff; }
-  button.grau { background: #333; }
-  button.gruen { background: #238636; }
-  button.klein { width: auto; padding: 8px 12px; margin: 0; font-size: 14px; }
-  .karte { background: #1c1c1c; border-radius: 14px; padding: 16px; margin: 12px 0; }
-  .karte.alt { opacity: .75; padding: 12px 16px; }
-  .kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .dienst { font-weight: 700; font-size: 18px; }
-  .zeit, .betreff, .klein-text { color: #999; font-size: 13px; margin-top: 4px; }
-  .code { font-size: 40px; letter-spacing: 6px; font-weight: 700; margin: 10px 0 4px; font-family: monospace; cursor: pointer; user-select: all; }
-  .karte.alt .code { font-size: 22px; letter-spacing: 3px; margin: 6px 0 2px; }
-  .gueltig { font-size: 13px; color: #6fdc8c; }
-  .gueltig.weg { color: #ff8a65; }
-  a.link { display: block; text-align: center; padding: 14px; margin-top: 8px; background: #2a6df4; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600; }
-  .karte.alt a.link { padding: 10px; background: #24324f; }
-  .fehler { color: #ff6b6b; }
-  .leer { color: #999; text-align: center; padding: 24px 0; }
-  label.check { display: flex; gap: 8px; align-items: center; color: #aaa; font-size: 14px; }
-  label.check input { width: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 6px; border-bottom: 1px solid #333; vertical-align: top; }
-  th { color: #999; }
-  .scroll { max-height: 420px; overflow: auto; }
-  .warn { color: #ff6b6b; font-weight: 600; }
-  .hinweis { background: #1c1c1c; border-radius: 10px; padding: 12px; font-size: 14px; color: #bbb; margin: 12px 0; }
-  details { background: #1c1c1c; border-radius: 14px; margin: 12px 0; }
-  details summary { padding: 16px; font-weight: 700; cursor: pointer; font-size: 17px; }
-  details .inhalt { padding: 0 16px 16px; }
-  ol { padding-left: 22px; margin: 6px 0; } ol li { margin: 8px 0; line-height: 1.4; }
-  .box-info { background: #10243f; border-left: 3px solid #2a6df4; padding: 10px 12px; border-radius: 8px; font-size: 14px; margin: 10px 0; }
-  .mail { font-family: monospace; background: #000; padding: 2px 6px; border-radius: 4px; }
-  .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: #181818; border-top: 1px solid #2a2a2a; padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
-  .tabs button { flex: 1; margin: 0; border-radius: 0; background: none; color: #888; padding: 14px 0 12px; font-size: 14px; }
-  .tabs button.an { color: #fff; }
-  .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: #238636; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; display: none; z-index: 9; }
-  .fuss { text-align: center; margin-top: 30px; }
-  .fuss a { color: #555; font-size: 12px; text-decoration: none; }
-  .dienst-edit { border: 1px solid #333; border-radius: 12px; padding: 12px; margin: 10px 0; }
-  .zeile { display: flex; gap: 8px; }
-  .zeile > button { flex: 1; }
-  button.warten-an { background: #8a5a00; }
-  .nutzer-karte { border: 1px solid #333; border-radius: 12px; padding: 12px; margin: 10px 0; }
-  .badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
-  .badge.aktiv { background: #1f4d2b; color: #8ff0a8; }
-  .badge.gesperrt { background: #4d1f1f; color: #ffaaaa; }
-  .badge.wartet { background: #4d3a12; color: #ffd27a; }
-  .checks { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0; }
-  .checks label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #ccc; }
-  .checks input { width: auto; margin: 0; }
-  .knoepfe { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .linkbox { word-break: break-all; background: #000; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 13px; margin: 8px 0; }
+/* ================== Design-Tokens ==================
+   Alle Farben laufen über diese Variablen. Ein Theme überschreibt nur --akzent, --akzent2 und --hg-muster. */
+:root {
+  --hg: #F2F2F7;           /* Hintergrund (iOS gruppiert) */
+  --flaeche: #FFFFFF;      /* Karten/Listen */
+  --flaeche2: #E5E5EA;     /* Felder, gedrückt */
+  --text: #1C1C1E;
+  --text2: #6C6C70;        /* Nebentext */
+  --linie: rgba(60, 60, 67, .18);
+  --akzent: #0A64FF;
+  --akzent2: #34C759;      /* Erfolg / zweite Themefarbe */
+  --warn: #FF3B30;
+  --hg-muster: none;
+  --radius-gross: 22px;
+  --radius: 12px;
+  --schrift: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --schrift-zahl: ui-rounded, "SF Pro Rounded", -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hg: #000000; --flaeche: #1C1C1E; --flaeche2: #2C2C2E;
+    --text: #F2F2F7; --text2: #98989F; --linie: rgba(84, 84, 88, .55);
+    --akzent: #3D8BFF;
+  }
+}
+/* ---------- Themes ---------- */
+[data-theme="weihnachten"] { --akzent: #C8102E; --akzent2: #1E7B45;
+  --hg-muster: radial-gradient(circle at 20% -10%, rgba(200,16,46,.10), transparent 45%), radial-gradient(circle at 110% 30%, rgba(30,123,69,.10), transparent 40%); }
+[data-theme="silvester"]   { --akzent: #B8860B; --akzent2: #7A5CFA;
+  --hg-muster: radial-gradient(circle at 80% -10%, rgba(184,134,11,.16), transparent 45%), radial-gradient(circle at -10% 60%, rgba(122,92,250,.10), transparent 40%); }
+[data-theme="ostern"]      { --akzent: #5E9E4B; --akzent2: #E8A0BF;
+  --hg-muster: radial-gradient(circle at 0% 0%, rgba(232,160,191,.18), transparent 40%), radial-gradient(circle at 100% 20%, rgba(255,214,102,.18), transparent 40%); }
+[data-theme="sommer"]      { --akzent: #F28C00; --akzent2: #00A6C8;
+  --hg-muster: radial-gradient(circle at 90% -10%, rgba(255,184,0,.20), transparent 45%), radial-gradient(circle at 0% 100%, rgba(0,166,200,.10), transparent 40%); }
+[data-theme="halloween"]   { --akzent: #FF6A00; --akzent2: #7B3FBF;
+  --hg-muster: radial-gradient(circle at 100% 0%, rgba(255,106,0,.16), transparent 45%), radial-gradient(circle at 0% 80%, rgba(123,63,191,.14), transparent 45%); }
+@media (prefers-color-scheme: dark) {
+  [data-theme="weihnachten"] { --akzent: #FF4D5E; }
+  [data-theme="silvester"]   { --akzent: #E0B24A; }
+  [data-theme="ostern"]      { --akzent: #86C26E; }
+  [data-theme="halloween"]   { --akzent: #FF8A2A; }
+}
+
+/* ================== Grundgerüst ================== */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--hg); }
+body {
+  margin: 0 auto; max-width: 520px; min-height: 100vh;
+  padding: max(12px, env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+  font-family: var(--schrift); font-size: 17px; line-height: 1.35; color: var(--text);
+  background: var(--hg-muster), var(--hg); background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+h1 { font-size: 34px; line-height: 1.12; font-weight: 700; letter-spacing: -.02em; margin: 18px 4px 6px; }
+h2 { font-size: 22px; font-weight: 700; letter-spacing: -.01em; margin: 26px 4px 8px; }
+p { margin: 0; }
+.unter { color: var(--text2); font-size: 15px; margin: 0 4px 18px; }
+.klein { color: var(--text2); font-size: 13px; }
+.sektion-titel { color: var(--text2); font-size: 13px; margin: 24px 16px 6px; }
+.sektion-fuss { color: var(--text2); font-size: 13px; margin: 6px 16px 0; line-height: 1.4; }
+
+/* Gruppierte Liste (wie iOS-Einstellungen) */
+.gruppe { background: var(--flaeche); border-radius: var(--radius-gross); overflow: hidden; }
+.zeile { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 16px; position: relative; }
+.zeile + .zeile::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--linie); }
+.zeile > .wachsen { flex: 1; min-width: 0; }
+.zeile input, .zeile select, .zeile textarea { border: 0; background: transparent; padding: 0; margin: 0; width: 100%; font: inherit; color: var(--text); outline: none; }
+.zeile textarea { min-height: 70px; resize: vertical; line-height: 1.4; padding-top: 2px; }
+.zeile label.titel { width: 112px; flex: none; color: var(--text); }
+input::placeholder, textarea::placeholder { color: var(--text2); opacity: .8; }
+
+/* Knöpfe */
+button { font: inherit; cursor: pointer; border: 0; }
+.knopf { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; padding: 12px 18px;
+  border-radius: 14px; background: var(--akzent); color: #fff; font-weight: 600; font-size: 17px; transition: transform .12s ease, opacity .12s; }
+.knopf:active { transform: scale(.98); opacity: .85; }
+.knopf.zweit { background: var(--flaeche); color: var(--akzent); }
+.knopf.still { background: transparent; color: var(--akzent); min-height: 44px; }
+.knopf.rot { background: var(--flaeche); color: var(--warn); }
+.knopf.klein { width: auto; min-height: 34px; padding: 6px 14px; font-size: 15px; border-radius: 10px; }
+.knopf[disabled] { opacity: .5; }
+.reihe { display: flex; gap: 10px; }
+.reihe > * { flex: 1; }
+.abstand { height: 12px; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--akzent) 60%, transparent); outline-offset: 2px; }
+.ico { width: 22px; height: 22px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ================== Der Code (das eine große Element) ================== */
+.ticket { background: var(--flaeche); border-radius: var(--radius-gross); padding: 18px 18px 16px; margin: 0 0 12px; position: relative; }
+.ticket-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.dienst { font-weight: 600; font-size: 17px; }
+.zeit { color: var(--text2); font-size: 14px; white-space: nowrap; }
+.betreff { color: var(--text2); font-size: 14px; margin-top: 2px; }
+.code-reihe { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 14px; }
+.code { font-family: var(--schrift-zahl); font-variant-numeric: tabular-nums; font-size: 54px; line-height: 1; font-weight: 600; letter-spacing: .08em;
+  color: var(--text); background: none; padding: 0; text-align: left; }
+.ring { width: 54px; height: 54px; flex: none; position: relative; }
+.ring svg { width: 54px; height: 54px; transform: rotate(-90deg); }
+.ring .bahn { stroke: var(--flaeche2); }
+.ring .rest { stroke: var(--akzent); transition: stroke-dashoffset .6s ease; }
+.ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ticket .hinweis-zeile { color: var(--text2); font-size: 13px; margin-top: 10px; }
+.ticket a.link { display: flex; align-items: center; justify-content: center; margin-top: 12px; min-height: 46px; border-radius: 12px;
+  background: var(--akzent); color: #fff; text-decoration: none; font-weight: 600; }
+.ticket.alt { padding: 12px 16px; }
+.ticket.alt .code { font-size: 26px; letter-spacing: .06em; color: var(--text2); }
+.ticket.alt .code-reihe { margin-top: 6px; }
+.ticket.alt a.link { background: var(--flaeche2); color: var(--text); min-height: 40px; }
+.leer { background: var(--flaeche); border-radius: var(--radius-gross); padding: 22px 18px; color: var(--text2); font-size: 15px; line-height: 1.45; }
+.leer b { color: var(--text); font-weight: 600; }
+
+/* Ausklappbereiche */
+details.klapp { background: var(--flaeche); border-radius: var(--radius-gross); margin-top: 12px; overflow: hidden; }
+details.klapp > summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; font-weight: 600; }
+details.klapp > summary::-webkit-details-marker { display: none; }
+details.klapp > summary .pfeil { margin-left: auto; transition: transform .2s ease; color: var(--text2); }
+details.klapp[open] > summary .pfeil { transform: rotate(90deg); }
+details.klapp .inhalt { padding: 0 16px 16px; }
+details.klapp .ticket { background: var(--hg); }
+
+/* Schritte (echte Reihenfolge, daher nummeriert) */
+ol.schritte { list-style: none; counter-reset: s; margin: 0; padding: 0; }
+ol.schritte li { counter-increment: s; position: relative; padding: 0 0 14px 40px; line-height: 1.45; font-size: 16px; }
+ol.schritte li::before { content: counter(s); position: absolute; left: 0; top: -1px; width: 26px; height: 26px; border-radius: 50%;
+  background: color-mix(in srgb, var(--akzent) 14%, transparent); color: var(--akzent); font-weight: 600; font-size: 14px; display: grid; place-items: center; }
+.tipp { background: color-mix(in srgb, var(--akzent) 9%, var(--flaeche)); border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.45; margin: 6px 0 4px; }
+.mail { font-weight: 600; color: var(--akzent); cursor: pointer; border-bottom: 1px dashed currentColor; }
+.banner { background: color-mix(in srgb, var(--akzent) 12%, var(--flaeche)); border-radius: 16px; padding: 12px 14px; font-size: 15px; line-height: 1.45; margin: 4px 0 14px; display: flex; gap: 10px; }
+.banner .ico { color: var(--akzent); margin-top: 1px; }
+
+/* Tab-Leiste */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: none; justify-content: center;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--hg) 78%, transparent); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: .5px solid var(--linie); }
+.tabs button { flex: 0 1 160px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; color: var(--text2); font-size: 11px; font-weight: 500; padding: 4px 0; }
+.tabs button.an { color: var(--akzent); }
+.tabs .ico { width: 26px; height: 26px; }
+
+/* Meldung unten */
+.toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px); opacity: 0;
+  background: color-mix(in srgb, var(--text) 88%, transparent); color: var(--hg); padding: 10px 18px; border-radius: 20px; font-size: 15px; font-weight: 500;
+  pointer-events: none; transition: opacity .2s, transform .2s; z-index: 9; }
+.toast.zeigen { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Admin */
+.badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 8px; }
+.badge.aktiv { background: color-mix(in srgb, var(--akzent2) 18%, transparent); color: var(--akzent2); }
+.badge.gesperrt { background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--warn); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 16px; background: var(--flaeche2); font-size: 14px; cursor: pointer; user-select: none; }
+.chip input { display: none; }
+.chip:has(input:checked) { background: var(--akzent); color: #fff; }
+.nutzer { padding: 14px 16px; }
+.nutzer + .nutzer { border-top: .5px solid var(--linie); }
+.nutzer-kopf { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+.aktionen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.linkbox { font-size: 13px; word-break: break-all; color: var(--text2); background: var(--hg); border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+.nachricht { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.45; background: var(--hg); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+td { padding: 8px 6px; border-top: .5px solid var(--linie); vertical-align: top; }
+td.wer { font-weight: 600; white-space: nowrap; }
+td.warn { color: var(--warn); font-weight: 600; }
+.scroll { max-height: 380px; overflow: auto; }
+.gesperrt-zeile { padding: 10px 16px; font-size: 14px; }
+.gesperrt-zeile + .gesperrt-zeile { border-top: .5px solid var(--linie); }
+.gesperrt-zeile .klein { margin-top: 2px; }
+.dienst-edit { padding: 6px 0; }
+.dienst-edit + .dienst-edit { border-top: 8px solid var(--hg); }
+.segment { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 12px; }
+.segment label { text-align: center; padding: 9px 4px; border-radius: 10px; background: var(--flaeche2); font-size: 14px; cursor: pointer; }
+.segment input { display: none; }
+.segment label:has(input:checked) { background: var(--akzent); color: #fff; font-weight: 600; }
+.schalter { appearance: none; -webkit-appearance: none; width: 51px !important; height: 31px; border-radius: 16px; background: var(--flaeche2); position: relative; flex: none; cursor: pointer; transition: background .2s; }
+.schalter::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s; }
+.schalter:checked { background: var(--akzent2); }
+.schalter:checked::after { transform: translateX(20px); }
+
+/* Fußzeile */
+.fuss { text-align: center; color: var(--text2); font-size: 12px; margin: 34px 0 6px; line-height: 1.6; }
+.fuss a { color: var(--text2); text-decoration: none; }
+.fuss .marke { font-weight: 600; color: var(--text); opacity: .7; }
+
+/* Schnee (nur Weihnachts-Theme) */
+#fx { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+/* Milchglas-Karten, solange Effekte laufen: Animation scheint durch, Text bleibt lesbar */
+body.fx-an .gruppe, body.fx-an .ticket, body.fx-an details.klapp, body.fx-an .leer, body.fx-an .knopf.zweit {
+  background: color-mix(in srgb, var(--flaeche) 74%, transparent); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); }
+/* Deko oben (Lichterkette, Spinne) */
+#deko { position: fixed; left: 0; right: 0; top: 0; height: 0; pointer-events: none; z-index: 6; }
+body.mit-kette { padding-top: max(46px, calc(env(safe-area-inset-top) + 34px)); }
+.kette { position: absolute; left: 0; top: env(safe-area-inset-top); width: 100%; height: 48px; overflow: visible; }
+.kette .draht { fill: none; stroke: #2E3B2F; stroke-width: 1.6; }
+@media (prefers-color-scheme: dark) { .kette .draht { stroke: #56635A; } }
+.kette .kappe { fill: #6B6F73; }
+.kette .birne { animation: blinken 1.6s ease-in-out infinite; }
+.kette .b1 { animation-delay: -.53s; } .kette .b2 { animation-delay: -1.07s; }
+.kette .b3 { animation-duration: 2.3s; } .kette .b4 { animation-duration: 1.2s; animation-delay: -.3s; }
+@keyframes blinken { 0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px var(--c)) drop-shadow(0 0 11px var(--c)); } 50% { opacity: .28; filter: none; } }
+.spinne { position: absolute; right: 22px; top: 0; animation: abseilen 7s ease-in-out infinite; transform-origin: top center; }
+.spinne line { stroke: color-mix(in srgb, var(--text) 45%, transparent); stroke-width: 1; }
+@keyframes abseilen { 0%, 100% { transform: translateY(-75px); } 45%, 60% { transform: translateY(-22px) rotate(3deg); } }
+@media (prefers-reduced-motion: reduce) { .kette .birne { animation: none; filter: drop-shadow(0 0 4px var(--c)); } }
+.seite { position: relative; z-index: 2; }
+.einblenden { animation: rein .35s ease both; }
+@keyframes rein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<canvas id="fx" hidden></canvas>
+<div id="deko" aria-hidden="true"></div>
+
+<!-- SVG-Symbole -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-schluessel" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/></symbol>
+  <symbol id="i-buch" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7"/></symbol>
+  <symbol id="i-neu" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
+  <symbol id="i-uhr" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-pfeil" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+  <symbol id="i-kopie" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></symbol>
+  <symbol id="i-teilen" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
+</svg>
 
 <!-- ============ ANMELDUNG ============ -->
-<div id="login" class="seite">
-  <h1>🔑 Codes abrufen</h1>
-  <input id="name" placeholder="Name" autocomplete="username">
-  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password">
-  <label class="check"><input type="checkbox" id="merken" checked> Auf diesem Gerät angemeldet bleiben</label>
-  <button onclick="anmelden()">Anmelden</button>
-  <p id="loginFehler" class="fehler"></p>
-  <div id="installHinweis" class="hinweis" style="display:none"></div>
-  <button class="grau" onclick="zeigeTab('anleitung')">📖 Anleitung ansehen</button>
-  <p class="klein-text">Noch keinen Zugang? Du brauchst einen <b>Einladungslink</b> vom Admin.</p>
-</div>
+<section id="login" class="seite" hidden>
+  <h1 class="app-titel">Codes</h1>
+  <p class="unter">Melde dich an, um Anmelde-Codes für den Fernseher abzurufen.</p>
+  <div class="gruppe">
+    <div class="zeile"><input id="name" placeholder="Name" autocomplete="username" autocapitalize="words"></div>
+    <div class="zeile"><input id="pw" type="password" placeholder="Passwort" autocomplete="current-password"></div>
+  </div>
+  <div class="gruppe" style="margin-top:12px">
+    <div class="zeile"><span class="wachsen">Angemeldet bleiben</span><input type="checkbox" id="merken" class="schalter" checked></div>
+  </div>
+  <div class="abstand"></div>
+  <button class="knopf" onclick="anmelden()">Anmelden</button>
+  <p id="loginFehler" class="sektion-fuss" style="color:var(--warn)"></p>
+  <p class="sektion-fuss">Noch keinen Zugang? Dafür brauchst du einen Einladungslink vom Admin.</p>
+  <div id="installHinweis" style="margin-top:18px"></div>
+</section>
 
 <!-- ============ EINLADUNG ============ -->
-<div id="einladung" class="seite" style="display:none">
-  <h1>🎉 Willkommen<span id="eName"></span>!</h1>
-  <div class="box-info">Du wurdest eingeladen. Leg dir jetzt dein eigenes Passwort fest, dann bist du direkt drin.</div>
-  <input id="ePw" type="password" placeholder="Passwort (mind. 6 Zeichen)" autocomplete="new-password">
-  <input id="ePw2" type="password" placeholder="Passwort wiederholen" autocomplete="new-password">
-  <button onclick="einladungAnnehmen()">Passwort speichern &amp; los</button>
-  <p id="eStatus" class="fehler"></p>
-</div>
+<section id="einladung" class="seite" hidden>
+  <h1>Willkommen<span id="eName"></span></h1>
+  <p class="unter">Du wurdest eingeladen. In drei Schritten bist du startklar.</p>
+  <div class="gruppe" style="padding:16px 16px 4px">
+    <ol class="schritte">
+      <li><b>Passwort festlegen.</b> Unten eingeben, mindestens 6 Zeichen. Damit meldest du dich künftig an.</li>
+      <li><b>App aufs Handy holen.</b> Danach erklärt dir die App, wie das auf deinem Gerät geht.</li>
+      <li><b>Code abrufen.</b> Am Fernseher die Anmeldung starten, hier auf „Aktualisieren“ tippen, Code eingeben.</li>
+    </ol>
+  </div>
+  <p class="sektion-titel">Dein Passwort</p>
+  <div class="gruppe">
+    <div class="zeile"><input id="ePw" type="password" placeholder="Passwort" autocomplete="new-password"></div>
+    <div class="zeile"><input id="ePw2" type="password" placeholder="Passwort wiederholen" autocomplete="new-password"></div>
+  </div>
+  <div class="abstand"></div>
+  <button class="knopf" onclick="einladungAnnehmen()">Passwort speichern und loslegen</button>
+  <p id="eStatus" class="sektion-fuss" style="color:var(--warn)"></p>
+</section>
 
 <!-- ============ CODES ============ -->
-<div id="codes" class="seite" style="display:none">
-  <h1>Hallo <span id="wer"></span> 👋</h1>
-  <div class="zeile">
-    <button onclick="laden()">🔄 Aktualisieren</button>
-    <button class="gruen" id="wartenKnopf" onclick="wartenUmschalten()">⏳ Auf Code warten</button>
+<section id="codes" class="seite" hidden>
+  <h1>Hallo <span id="wer"></span></h1>
+  <p class="unter" id="status">Hier erscheinen deine Anmelde-Codes.</p>
+  <div id="banner"></div>
+  <div class="reihe" style="margin-bottom:16px">
+    <button class="knopf zweit" onclick="laden()"><svg class="ico"><use href="#i-neu"/></svg>Aktualisieren</button>
+    <button class="knopf" id="wartenKnopf" onclick="wartenUmschalten()"><svg class="ico"><use href="#i-uhr"/></svg><span>Auf Code warten</span></button>
   </div>
-  <p id="status" class="klein-text"></p>
-  <h2>Aktuell</h2>
   <div id="aktuell"></div>
-  <h2>Verlauf <span class="klein-text">(ältere Codes der letzten 24 Std.)</span></h2>
-  <div id="verlauf"></div>
-  <button class="grau" style="margin-top:24px" onclick="abmelden()">Abmelden</button>
-</div>
+  <details class="klapp" id="verlaufBox" hidden>
+    <summary><svg class="ico"><use href="#i-uhr"/></svg><span>Ältere Codes</span><span class="klein" id="verlaufZahl"></span><svg class="ico pfeil"><use href="#i-pfeil"/></svg></summary>
+    <div class="inhalt"><p class="klein" style="margin-bottom:10px">Älter als 5 Minuten. Nach einer Stunde verschwinden sie hier.</p><div id="verlauf"></div></div>
+  </details>
+  <div class="abstand"></div>
+  <button class="knopf still" onclick="abmelden()">Abmelden</button>
+</section>
 
 <!-- ============ ANLEITUNG ============ -->
-<div id="anleitung" class="seite" style="display:none">
-  <h1>📖 Anleitung</h1>
-  <div class="box-info">So funktioniert's: Du startest die Anmeldung am Fernseher. Der Dienst schickt einen Code per E-Mail, und der taucht dann hier unter <b>Codes</b> auf. Codes gelten meist nur <b>15 Minuten</b>, also nicht trödeln 😉</div>
+<section id="anleitung" class="seite" hidden>
+  <h1>Anleitung</h1>
+  <p class="unter">Du startest die Anmeldung am Fernseher. Der Dienst schickt einen Code per E-Mail, und der erscheint dann in dieser App. Codes gelten meist nur 15 Minuten.</p>
   <div id="loginInfo"></div>
 
-  <details open>
-    <summary>🟥 Netflix am Fernseher anmelden</summary>
+  <details class="klapp" open>
+    <summary>Netflix am Fernseher<svg class="ico pfeil"><use href="#i-pfeil"/></svg></summary>
     <div class="inhalt">
-      <ol>
-        <li>Netflix-App auf dem Fernseher öffnen und <b>Anmelden</b> wählen.</li>
-        <li>Die <b>E-Mail-Adresse des Kontos</b> eingeben <span class="nflogin"></span> und <b>Weiter</b> drücken.</li>
-        <li>Netflix schickt einen <b>4-stelligen Login-Code</b> per E-Mail.</li>
-        <li>Hier in der App auf <b>Codes → 🔄 Aktualisieren</b> tippen. Der Code erscheint oben unter „Aktuell“.</li>
-        <li>Den Code am Fernseher eingeben, Profil auswählen, fertig.</li>
+      <ol class="schritte">
+        <li>Netflix-App am Fernseher öffnen und <b>Anmelden</b> wählen.</li>
+        <li>Die E-Mail-Adresse des Kontos eingeben<span class="nflogin"></span> und <b>Weiter</b> drücken.</li>
+        <li>Netflix schickt einen 4-stelligen Code. Hier unter <b>Codes</b> auf <b>Auf Code warten</b> tippen.</li>
+        <li>Den Code am Fernseher eingeben und dein Profil auswählen.</li>
       </ol>
-      <h2>Meldung „Gehört nicht zum Netflix-Haushalt“?</h2>
-      <ol>
-        <li>Am Fernseher <b>„Ich bin unterwegs“</b> bzw. <b>„Vorübergehend streamen“</b> wählen (nicht im Kinderprofil).</li>
-        <li><b>E-Mail senden</b> wählen.</li>
-        <li>Hier in der App auf <b>🔄 Aktualisieren</b> tippen und beim Netflix-Eintrag auf den blauen Knopf <b>„Code anfordern“</b> tippen.</li>
-        <li>Es öffnet sich eine Netflix-Seite mit einem <b>4-stelligen Zugangscode</b>. Diesen am Fernseher eingeben.</li>
+      <p style="font-weight:600;margin:6px 0 10px">Meldung „Gehört nicht zum Netflix-Haushalt“</p>
+      <ol class="schritte">
+        <li>Am Fernseher <b>Ich bin unterwegs</b> bzw. <b>Vorübergehend streamen</b> wählen, dann <b>E-Mail senden</b>.</li>
+        <li>Hier unter <b>Codes</b> beim Netflix-Eintrag auf <b>Code anfordern</b> tippen.</li>
+        <li>Es öffnet sich eine Netflix-Seite mit einem 4-stelligen Code. Diesen am Fernseher eingeben.</li>
       </ol>
-      <div class="box-info">Wenn „Ich bin unterwegs“ nicht mehr angezeigt wird, sind für diesen Fernseher zu viele Codes angefordert worden. Dann bitte beim Admin melden.</div>
+      <p class="tipp">Wird „Ich bin unterwegs“ nicht mehr angeboten, wurden für den Fernseher schon zu viele Codes angefordert. Dann bitte beim Admin melden.</p>
     </div>
   </details>
 
-  <details>
-    <summary>🟦 Amazon Prime Video am Fernseher anmelden</summary>
+  <details class="klapp">
+    <summary>Prime Video am Fernseher<svg class="ico pfeil"><use href="#i-pfeil"/></svg></summary>
     <div class="inhalt">
-      <ol>
-        <li>Prime-Video-App auf dem Fernseher öffnen und <b>Anmelden</b> wählen.</li>
-        <li><b>„Auf einem anderen Gerät anmelden“</b> bzw. <b>„Auf Prime-Webseite registrieren“</b> wählen. Am Fernseher erscheint ein <b>6-stelliger Code</b> (Buchstaben/Zahlen) und die Adresse <b>primevideo.com/mytv</b>. Diesen Bildschirm offen lassen!</li>
-        <li>Am Handy im Browser <b>primevideo.com/mytv</b> öffnen.</li>
-        <li>Mit dem Amazon-Konto anmelden <span class="amlogin"></span>. Schickt Amazon dabei einen <b>Einmal-Code (OTP)</b> per E-Mail, findest du ihn hier unter <b>Codes → 🔄 Aktualisieren</b>.</li>
-        <li>Den <b>Code vom Fernseher</b> auf der Webseite eingeben und <b>Gerät registrieren</b> drücken.</li>
-        <li>Der Fernseher aktualisiert sich von selbst, fertig.</li>
+      <ol class="schritte">
+        <li>Prime-Video-App am Fernseher öffnen und <b>Anmelden</b> wählen.</li>
+        <li><b>Auf einem anderen Gerät anmelden</b> wählen. Der Fernseher zeigt einen Code und die Adresse primevideo.com/mytv. Diesen Bildschirm offen lassen.</li>
+        <li>Am Handy im Browser <b>primevideo.com/mytv</b> öffnen und mit dem Amazon-Konto anmelden<span class="amlogin"></span>.</li>
+        <li>Fragt Amazon nach einem Einmal-Code, findest du ihn hier unter <b>Codes</b>.</li>
+        <li>Den Code vom Fernseher auf der Webseite eingeben und <b>Gerät registrieren</b> drücken. Der Fernseher meldet sich von selbst an.</li>
       </ol>
-      <div class="box-info">Der Code am Fernseher ist nur kurz gültig. Falls er abläuft, am Fernseher einfach einen neuen anfordern.</div>
+      <p class="tipp">Der Code am Fernseher ist nur kurz gültig. Läuft er ab, am Fernseher einfach einen neuen anfordern.</p>
     </div>
   </details>
 
-  <details>
-    <summary>📲 Diese App aufs Handy holen</summary>
+  <details class="klapp">
+    <summary>Diese App aufs Handy holen<svg class="ico pfeil"><use href="#i-pfeil"/></svg></summary>
     <div class="inhalt">
-      <ol>
-        <li><b>Android:</b> Seite in Chrome öffnen und auf <b>„Als App installieren“</b> tippen (oder Menü ⋮ → „App installieren“).</li>
-        <li><b>iPhone:</b> Seite in Safari öffnen, unten auf <b>Teilen</b> (Quadrat mit Pfeil) und dann <b>„Zum Home-Bildschirm“</b>.</li>
-        <li>Beim ersten Anmelden <b>„Auf diesem Gerät angemeldet bleiben“</b> angehakt lassen, dann musst du dein Passwort nicht jedes Mal eingeben.</li>
+      <ol class="schritte">
+        <li><b>iPhone:</b> Seite in Safari öffnen, unten auf <b>Teilen</b> tippen, dann <b>Zum Home-Bildschirm</b>.</li>
+        <li><b>Android:</b> Seite in Chrome öffnen und auf <b>App installieren</b> tippen (Menü oben rechts).</li>
+        <li>Beim Anmelden <b>Angemeldet bleiben</b> eingeschaltet lassen, dann musst du dein Passwort nicht jedes Mal eingeben.</li>
       </ol>
     </div>
   </details>
-</div>
+  <p class="sektion-fuss" style="margin-top:14px">Sicherheit: Codes zum Zurücksetzen von Passwörtern zeigt diese App grundsätzlich nie an.</p>
+</section>
 
-<!-- ============ ADMIN ============ -->
-<div id="adminLogin" class="seite" style="display:none">
-  <h1>🔒 Admin</h1>
-  <input id="aPw" type="password" placeholder="Admin-Passwort">
-  <input id="aTotp" inputmode="numeric" maxlength="6" placeholder="6-stelliger Code aus Authenticator">
-  <button class="gruen" onclick="adminLogin()">Einloggen</button>
-  <p id="aFehler" class="fehler"></p>
-  <button class="grau" onclick="location.hash=''">Zurück</button>
-</div>
-
-<div id="adminPanel" class="seite" style="display:none">
-  <h1>Admin-Panel</h1>
-  <div class="zeile"><button class="grau" onclick="adminLaden()">🔄 Neu laden</button><button class="grau" onclick="adminLogout()">Abmelden</button></div>
-  <p id="pFehler" class="fehler"></p>
-
-  <div class="karte">
-    <b>🔗 Einladungslink erstellen</b>
-    <div class="klein-text">Nur mit so einem Link kann sich jemand neu anmelden. Die Person öffnet ihn und legt ihr Passwort selbst fest. Der Link gilt 7 Tage und nur einmal.</div>
-    <input id="iName" placeholder="Name der Person">
-    <div class="klein-text">Darf sehen (nichts angehakt = alle Dienste):</div>
-    <div id="iDienste"></div>
-    <button class="gruen" onclick="einladungErstellen()">Link erstellen</button>
-    <div id="iErgebnis"></div>
-    <div id="iOffen"></div>
+<!-- ============ ADMIN: LOGIN ============ -->
+<section id="adminLogin" class="seite" hidden>
+  <h1>Verwaltung</h1>
+  <p class="unter">Nur für den Admin. Passwort und Code aus der Authenticator-App.</p>
+  <div class="gruppe">
+    <div class="zeile"><input id="aPw" type="password" placeholder="Admin-Passwort" autocomplete="current-password"></div>
+    <div class="zeile"><input id="aTotp" inputmode="numeric" maxlength="6" placeholder="6-stelliger Code" autocomplete="one-time-code"></div>
   </div>
+  <div class="abstand"></div>
+  <button class="knopf" onclick="adminLogin()">Anmelden</button>
+  <p id="aFehler" class="sektion-fuss" style="color:var(--warn)"></p>
+  <button class="knopf still" onclick="location.hash=''">Zurück</button>
+</section>
 
-  <div class="karte">
-    <b>👥 Nutzer</b>
-    <div id="nutzerListe"></div>
+<!-- ============ ADMIN: PANEL ============ -->
+<section id="adminPanel" class="seite" hidden>
+  <h1>Verwaltung</h1>
+  <p class="unter" id="pFehler"></p>
+  <div class="reihe"><button class="knopf zweit" onclick="adminLaden()">Neu laden</button><button class="knopf zweit" onclick="adminLogout()">Abmelden</button></div>
+
+  <p class="sektion-titel">Neue Person einladen</p>
+  <div class="gruppe">
+    <div class="zeile"><label class="titel" for="iName">Name</label><input id="iName" class="wachsen" placeholder="z. B. Lisa"></div>
+    <div class="zeile" style="display:block"><div class="klein" style="margin-bottom:8px">Darf Codes sehen von (nichts gewählt = alle)</div><div id="iDienste" class="chips"></div></div>
   </div>
+  <div class="abstand"></div>
+  <button class="knopf" onclick="einladungErstellen()">Einladung erstellen</button>
+  <div id="iErgebnis"></div>
+  <p class="sektion-fuss">Nur mit einem Einladungslink kann sich jemand neu anmelden. Er gilt 7 Tage und nur einmal.</p>
+  <div id="iOffen"></div>
 
-  <div class="karte">
-    <b>Nutzer direkt anlegen / Passwort ändern</b>
-    <input id="nName" placeholder="Name">
-    <input id="nPw" placeholder="Passwort (mind. 6 Zeichen)">
-    <button class="gruen" onclick="nutzerSpeichern()">Speichern</button>
+  <p class="sektion-titel">Personen</p>
+  <div class="gruppe" id="nutzerListe"></div>
+
+  <p class="sektion-titel">Aussehen</p>
+  <div class="gruppe">
+    <div class="zeile"><label class="titel" for="cTitel">App-Name</label><input id="cTitel" class="wachsen" maxlength="30" placeholder="Codes"></div>
+    <div class="segment" id="cTheme"></div>
+    <div class="zeile"><span class="wachsen">Animationen<br><span class="klein">Schnee und Lichterkette, Feuerwerk, Fledermäuse …</span></span><input type="checkbox" id="cSchnee" class="schalter"></div>
+    <div class="zeile" style="align-items:flex-start"><textarea id="cHinweis" maxlength="300" placeholder="Hinweis an alle (optional), z. B. „Frohe Weihnachten! Bitte Codes nur am eigenen Fernseher nutzen.“"></textarea></div>
   </div>
+  <div class="abstand"></div>
+  <button class="knopf" onclick="configSpeichern()">Name und Hinweis speichern</button>
+  <p class="sektion-fuss">Ein Design wird sofort für alle gespeichert. „Automatisch“ wechselt je nach Datum: Weihnachten (Dezember), Silvester (27.12. bis 2.1.), Ostern, Sommer (Juli, August) und Halloween (ab 20.10.).</p>
 
-  <div class="karte">
-    <b>Dienste &amp; E-Mail-Adressen</b>
-    <div class="klein-text"><b>Login-E-Mail:</b> Wird deinen Leuten in der Anleitung angezeigt.<br><b>Absender:</b> Nur Mails von diesen Adressen oder Domains werden ausgewertet (eine pro Zeile, z.&nbsp;B. <span class="mail">info@account.netflix.com</span> oder <span class="mail">netflix.com</span>).</div>
-    <div id="diensteListe"></div>
-    <button class="grau" onclick="dienstHinzu()">➕ Dienst hinzufügen</button>
-    <button class="gruen" onclick="diensteSpeichern()">Dienste speichern</button>
-    <p id="dStatus" class="klein-text"></p>
+  <p class="sektion-titel">Dienste und E-Mail-Adressen</p>
+  <div class="gruppe" id="diensteListe"></div>
+  <div class="abstand"></div>
+  <div class="reihe"><button class="knopf zweit" onclick="dienstHinzu()">Dienst hinzufügen</button><button class="knopf" onclick="diensteSpeichern()">Speichern</button></div>
+  <p class="sektion-fuss" id="dStatus">Login-E-Mail: erscheint in der Anleitung. Absender: Nur Mails von diesen Adressen oder Domains werden ausgewertet, eine pro Zeile.</p>
+
+  <p class="sektion-titel">Codes der letzten 24 Stunden</p>
+  <div id="adminCodes"></div>
+  <p class="sektion-fuss">Deine Leute sehen nur Codes der letzten Stunde.</p>
+
+  <p class="sektion-titel">Aus Sicherheitsgründen gesperrte Mails</p>
+  <div class="gruppe" id="gesperrtListe"></div>
+  <p class="sektion-fuss">Passwort- und Konto-Mails kommen nie in die App. Hier siehst du nur Betreff und Grund, nie einen Code.</p>
+
+  <p class="sektion-titel">Person direkt anlegen oder Passwort ändern</p>
+  <div class="gruppe">
+    <div class="zeile"><label class="titel" for="nName">Name</label><input id="nName" class="wachsen"></div>
+    <div class="zeile"><label class="titel" for="nPw">Passwort</label><input id="nPw" class="wachsen" placeholder="mind. 6 Zeichen"></div>
   </div>
+  <div class="abstand"></div>
+  <button class="knopf zweit" onclick="nutzerSpeichern()">Speichern</button>
 
-  <div class="karte">
-    <b>Protokoll (neueste zuerst)</b>
-    <div class="scroll"><table id="log"></table></div>
-  </div>
-</div>
+  <p class="sektion-titel">Protokoll</p>
+  <div class="gruppe scroll" style="padding:0 10px"><table id="log"></table></div>
+</section>
 
-<div class="fuss"><a href="#admin">Admin</a></div>
+<footer class="fuss">
+  <div><span class="marke">Gestaltet und programmiert von AY-Tech</span></div>
+  <div>IT &amp; Hardware-Reparatur</div>
+  <div style="margin-top:6px"><a href="#admin">Verwaltung</a></div>
+</footer>
 
-<nav class="tabs" id="tabs" style="display:none">
-  <button id="tab-codes" onclick="zeigeTab('codes')">🔑<br>Codes</button>
-  <button id="tab-anleitung" onclick="zeigeTab('anleitung')">📖<br>Anleitung</button>
+<nav class="tabs" id="tabs">
+  <button id="tab-codes" onclick="zeigeTab('codes')"><svg class="ico"><use href="#i-schluessel"/></svg>Codes</button>
+  <button id="tab-anleitung" onclick="zeigeTab('anleitung')"><svg class="ico"><use href="#i-buch"/></svg>Anleitung</button>
 </nav>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 // ↓↓↓ Adresse des Apps Scripts (Web-App-URL, endet auf /exec)
 const API = 'https://script.google.com/macros/s/AKfycbzHczH5NRXG47sfQoksiBbRKWGYqufHh4vwidOKXajP09_EhF07-yQZsJt9tlv8zTr90w/exec';
-const GUELTIG_MIN = 15; // Netflix-/Amazon-Codes gelten meist ca. 15 Minuten
+const GUELTIG_MIN = 15;            // Netflix-/Amazon-Codes gelten meist ca. 15 Minuten
+const APP_LINK = location.origin + location.pathname;
 
 const $ = id => document.getElementById(id);
-let NAME = '', PW = '', TOKEN = null, DIENSTE = [], EINGELOGGT = false;
+let NAME = '', PW = '', TOKEN = null, DIENSTE = [], EINGELOGGT = false, CONFIG = { titel: 'Codes', theme: 'auto', schnee: true };
 
 async function api(daten) {
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(daten), credentials: 'omit' });
@@ -241,58 +448,222 @@ async function api(daten) {
   return j.data;
 }
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function toast(t) { const x = $('toast'); x.textContent = t; x.style.display = 'block'; clearTimeout(x._t); x._t = setTimeout(() => x.style.display = 'none', 1600); }
+function ico(name) { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', 'ico'); const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#i-' + name); s.appendChild(u); return s; }
+function toast(t) { const x = $('toast'); x.textContent = t; x.classList.add('zeigen'); clearTimeout(x._t); x._t = setTimeout(() => x.classList.remove('zeigen'), 1700); }
+function kopiere(text, meldung) { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast(meldung || 'Kopiert'), () => toast('Kopieren nicht möglich')); }
+function vibriere(m) { try { navigator.vibrate && navigator.vibrate(m); } catch (e) {} }
 
+// ================== Aussehen / Themes ==================
+function osterSonntag(j) { // Gaußsche Osterformel
+  const a = j % 19, b = Math.floor(j / 100), c = j % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+    h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+    mon = Math.floor((h + l - 7 * m + 114) / 31), tag = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(j, mon - 1, tag);
+}
+function autoTheme(d) {
+  d = d || new Date();
+  const m = d.getMonth() + 1, t = d.getDate();
+  if ((m === 12 && t >= 27) || (m === 1 && t <= 2)) return 'silvester';
+  if (m === 12) return 'weihnachten';
+  const o = osterSonntag(d.getFullYear()), diff = (d - o) / 86400000;
+  if (diff >= -10 && diff <= 2) return 'ostern';
+  if (m === 10 && t >= 20) return 'halloween';
+  if (m === 7 || m === 8) return 'sommer';
+  return 'standard';
+}
+function themeAnwenden(c) {
+  CONFIG = Object.assign(CONFIG, c || {});
+  const th = CONFIG.theme === 'auto' ? autoTheme() : CONFIG.theme;
+  document.documentElement.dataset.theme = th;
+  document.title = CONFIG.titel;
+  document.querySelectorAll('.app-titel').forEach(x => x.textContent = CONFIG.titel);
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content = CONFIG.titel;
+  effekte(CONFIG.schnee !== false ? th : null);
+  try { localStorage.setItem('codeapp-config', JSON.stringify(CONFIG)); } catch (e) {}
+}
+// ================== Effekte je Design ==================
+// Schnee + Lichterkette, Feuerwerk, Blütenblätter, Seifenblasen, Fledermäuse + Spinne.
+// Läuft hinter den Inhalten, stört nie das Lesen der Codes und pausiert, wenn die App im Hintergrund ist.
+const FX = { raf: null, typ: null };
+const zufall = (a, b) => a + Math.random() * (b - a);
+function effekte(typ) {
+  if (FX.typ === typ) return;
+  FX.typ = typ;
+  if (FX.raf) cancelAnimationFrame(FX.raf); FX.raf = null;
+  const cv = $('fx'), deko = $('deko');
+  deko.innerHTML = ''; document.body.classList.remove('mit-kette'); removeEventListener('resize', lichterkette);
+  document.body.classList.toggle('fx-an', !!(typ && SIMS[typ]));
+  if (!typ || !SIMS[typ]) { cv.hidden = true; return; }
+  if (typ === 'weihnachten') { lichterkette(); addEventListener('resize', lichterkette); }
+  if (typ === 'halloween') spinne();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { cv.hidden = true; return; }
+  cv.hidden = false;
+  const ctx = cv.getContext('2d'), S = { w: 0, h: 0, dpr: Math.min(2, devicePixelRatio || 1), dunkel: matchMedia('(prefers-color-scheme: dark)').matches };
+  const groesse = () => { S.w = cv.width = innerWidth * S.dpr; S.h = cv.height = innerHeight * S.dpr; cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; };
+  groesse(); window.onresize = groesse;
+  const sim = SIMS[typ](S);
+  const tick = () => { if (!document.hidden) { ctx.clearRect(0, 0, S.w, S.h); sim(ctx); } FX.raf = requestAnimationFrame(tick); };
+  tick();
+}
+const SIMS = {
+  weihnachten(S) {
+    const f = Array.from({ length: 70 }, () => ({ x: zufall(0, S.w), y: zufall(0, S.h), r: zufall(1, 3.4) * S.dpr, v: zufall(.35, 1.1) * S.dpr, p: zufall(0, 6), s: zufall(.004, .02) }));
+    return ctx => {
+      ctx.fillStyle = S.dunkel ? 'rgba(255,255,255,.85)' : 'rgba(150,170,200,.6)';
+      for (const k of f) {
+        k.y += k.v * (k.r / (2.2 * S.dpr)); k.p += k.s; k.x += Math.sin(k.p) * .45 * S.dpr;
+        if (k.y > S.h + 5) { k.y = -6; k.x = zufall(0, S.w); }
+        ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, 6.283); ctx.fill();
+      }
+    };
+  },
+  silvester(S) {
+    const farben = ['#FFD54A', '#FF4FA3', '#4FD7FF', '#FFFFFF', '#FF5A3C', '#9B7BFF', '#7CFF8A'];
+    const raketen = [], funken = []; let naechste = 0;
+    return ctx => {
+      const t = performance.now();
+      if (t > naechste && raketen.length < 3) {
+        raketen.push({ x: zufall(.12, .88) * S.w, y: S.h + 5, vy: -zufall(9, 12.5) * S.dpr, ziel: zufall(.08, .62) * S.h, c: farben[Math.floor(Math.random() * farben.length)] });
+        naechste = t + zufall(400, 1100);
+      }
+      ctx.globalCompositeOperation = S.dunkel ? 'lighter' : 'source-over';
+      for (let i = raketen.length - 1; i >= 0; i--) {
+        const r = raketen[i]; r.y += r.vy; r.vy *= .985;
+        ctx.strokeStyle = 'rgba(255,220,150,.8)'; ctx.lineWidth = 2 * S.dpr; ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(r.x, r.y - r.vy * 2.2); ctx.stroke();
+        if (r.y <= r.ziel || r.vy > -2) {
+          raketen.splice(i, 1);
+          const n = 90, c2 = Math.random() < .4 ? farben[Math.floor(Math.random() * farben.length)] : r.c;
+          for (let k = 0; k < n; k++) { const a = (k / n) * 6.283, v = zufall(1.8, 6.4) * S.dpr; funken.push({ x: r.x, y: r.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, c: k % 3 ? r.c : c2 }); }
+        }
+      }
+      for (let i = funken.length - 1; i >= 0; i--) {
+        const p = funken[i], ax = p.x, ay = p.y;
+        p.vx *= .97; p.vy = p.vy * .97 + .06 * S.dpr; p.x += p.vx; p.y += p.vy; p.l -= .009;
+        if (p.l <= 0) { funken.splice(i, 1); continue; }
+        ctx.globalAlpha = Math.min(1, p.l * 1.4) * (Math.random() < .1 ? .4 : 1);
+        ctx.strokeStyle = p.c; ctx.lineWidth = 2.2 * S.dpr; ctx.beginPath(); ctx.moveTo(ax - p.vx * 1.5, ay - p.vy * 1.5); ctx.lineTo(p.x, p.y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    };
+  },
+  ostern(S) {
+    const farben = ['#F7B7D2', '#FFE08A', '#C9E8B0', '#FFFFFF', '#E7C6FF'];
+    const b = Array.from({ length: 28 }, () => ({ x: zufall(0, S.w), y: zufall(0, S.h), r: zufall(4, 8) * S.dpr, v: zufall(.4, 1) * S.dpr, w: zufall(0, 6), dw: zufall(-.03, .03), p: zufall(0, 6), c: farben[Math.floor(Math.random() * farben.length)] }));
+    return ctx => {
+      for (const k of b) {
+        k.y += k.v; k.p += .015; k.x += Math.sin(k.p) * .8 * S.dpr; k.w += k.dw;
+        if (k.y > S.h + 10) { k.y = -10; k.x = zufall(0, S.w); }
+        ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.w); ctx.scale(1, Math.abs(Math.cos(k.p * 2)) * .6 + .4);
+        ctx.fillStyle = k.c; ctx.globalAlpha = .85; ctx.beginPath(); ctx.ellipse(0, 0, k.r, k.r * .6, 0, 0, 6.283); ctx.fill(); ctx.restore();
+      }
+    };
+  },
+  sommer(S) {
+    const b = Array.from({ length: 20 }, () => ({ x: zufall(0, S.w), y: zufall(0, S.h), r: zufall(6, 20) * S.dpr, v: zufall(.3, .9) * S.dpr, p: zufall(0, 6) }));
+    return ctx => {
+      for (const k of b) {
+        k.y -= k.v; k.p += .02; k.x += Math.sin(k.p) * .6 * S.dpr;
+        if (k.y < -k.r * 2) { k.y = S.h + k.r; k.x = zufall(0, S.w); }
+        const g = ctx.createRadialGradient(k.x - k.r * .35, k.y - k.r * .35, k.r * .1, k.x, k.y, k.r);
+        g.addColorStop(0, S.dunkel ? 'rgba(255,255,255,.30)' : 'rgba(255,255,255,.55)'); g.addColorStop(.7, 'rgba(120,210,255,.06)'); g.addColorStop(1, S.dunkel ? 'rgba(150,220,255,.28)' : 'rgba(255,170,220,.35)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = S.dunkel ? 'rgba(170,230,255,.35)' : 'rgba(0,140,190,.18)'; ctx.lineWidth = 1 * S.dpr; ctx.stroke();
+      }
+    };
+  },
+  halloween(S) {
+    const f = Array.from({ length: 7 }, () => ({ x: zufall(0, S.w), y: zufall(.05, .6) * S.h, v: zufall(.8, 2) * S.dpr * (Math.random() < .5 ? -1 : 1), g: zufall(10, 18) * S.dpr, p: zufall(0, 6), sp: zufall(.18, .3) }));
+    return ctx => {
+      ctx.fillStyle = S.dunkel ? '#6B3F8F' : 'rgba(40,20,50,.75)';
+      for (const k of f) {
+        k.x += k.v; k.p += k.sp; k.y += Math.sin(k.p * .3) * .6 * S.dpr;
+        if (k.x < -40 * S.dpr) k.x = S.w + 40 * S.dpr; if (k.x > S.w + 40 * S.dpr) k.x = -40 * S.dpr;
+        const fl = Math.sin(k.p) * .7, g = k.g;
+        ctx.save(); ctx.translate(k.x, k.y); if (k.v < 0) ctx.scale(-1, 1);
+        if (S.dunkel) { ctx.shadowColor = 'rgba(255,120,0,.85)'; ctx.shadowBlur = 14 * S.dpr; }
+        ctx.beginPath(); ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(-g * .5, -g * fl - g * .2, -g * 1.2, -g * fl * .8); ctx.quadraticCurveTo(-g * .8, -g * fl * .3 + g * .1, -g * .5, g * .15); ctx.lineTo(0, g * .1);
+        ctx.lineTo(g * .5, g * .15); ctx.quadraticCurveTo(g * .8, -g * fl * .3 + g * .1, g * 1.2, -g * fl * .8); ctx.quadraticCurveTo(g * .5, -g * fl - g * .2, 0, 0);
+        ctx.fill(); ctx.beginPath(); ctx.ellipse(0, g * .08, g * .22, g * .3, 0, 0, 6.283); ctx.fill(); ctx.restore();
+      }
+    };
+  },
+};
+function lichterkette() {
+  const deko = $('deko'), w = innerWidth, abschnitt = w < 500 ? 96 : 120, farben = ['#FF3B3B', '#FFC93C', '#36D46B', '#3CA0FF', '#FF5FC8'];
+  let draht = '', birnen = '', n = 0;
+  for (let x0 = -abschnitt / 2; x0 < w + abschnitt; x0 += abschnitt) {
+    const x1 = x0 + abschnitt, mx = x0 + abschnitt / 2, y0 = 6, sag = 26;
+    draht += 'M' + x0 + ' ' + y0 + ' Q' + mx + ' ' + (y0 + sag * 2 - 6) + ' ' + x1 + ' ' + y0 + ' ';
+    [.2, .5, .8].forEach(t => {
+      const x = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * mx + t * t * x1, y = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * (y0 + sag * 2 - 6) + t * t * y0;
+      const c = farben[n % farben.length];
+      birnen += '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"><rect class="kappe" x="-2.6" y="-1" width="5.2" height="5" rx="1"/>' +
+        '<path class="birne b' + (n % 5) + '" style="--c:' + c + '" fill="' + c + '" d="M0 3 C5 6 6.5 12 0 18 C-6.5 12 -5 6 0 3Z"/></g>';
+      n++;
+    });
+  }
+  deko.innerHTML = '<svg class="kette" viewBox="0 0 ' + w + ' 48" preserveAspectRatio="none"><path class="draht" d="' + draht + '"/>' + birnen + '</svg>';
+  document.body.classList.add('mit-kette');
+}
+function spinne() {
+  $('deko').innerHTML = '<svg class="spinne" width="40" height="120" viewBox="0 0 40 120"><line x1="20" y1="0" x2="20" y2="92"/>' +
+    '<g fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color:var(--text)"><ellipse cx="20" cy="100" rx="6.5" ry="8"/><circle cx="20" cy="90" r="4.2"/>' +
+    '<path fill="none" d="M14 96 L5 90 L2 98 M14 101 L4 102 L2 110 M26 96 L35 90 L38 98 M26 101 L36 102 L38 110"/></g>' +
+    '<circle cx="18.2" cy="89.5" r="1" fill="#FF6A00"/><circle cx="21.8" cy="89.5" r="1" fill="#FF6A00"/></svg>';
+}
+try { const c = JSON.parse(localStorage.getItem('codeapp-config') || 'null'); if (c) themeAnwenden(c); else themeAnwenden({}); } catch (e) { themeAnwenden({}); }
+api({ aktion: 'config' }).then(themeAnwenden).catch(() => {});
+
+// ================== Ansichten ==================
 function zeigeNur(id) {
-  document.querySelectorAll('.seite').forEach(s => s.style.display = (s.id === id ? '' : 'none'));
-  const tabsSichtbar = EINGELOGGT && (id === 'codes' || id === 'anleitung');
-  $('tabs').style.display = tabsSichtbar ? 'flex' : 'none';
+  document.querySelectorAll('.seite').forEach(s => s.hidden = (s.id !== id));
+  const tabs = EINGELOGGT && (id === 'codes' || id === 'anleitung');
+  $('tabs').style.display = tabs ? 'flex' : 'none';
   ['codes', 'anleitung'].forEach(t => $('tab-' + t).classList.toggle('an', t === id));
   window.scrollTo(0, 0);
 }
 function zeigeTab(t) {
-  if (t === 'codes') { if (EINGELOGGT) { zeigeNur('codes'); laden(); } else zeigeNur('login'); }
-  else { anleitungFuellen(); zeigeNur('anleitung'); if (!EINGELOGGT) { $('tabs').style.display = 'none'; zurueckKnopf(); } }
-}
-function zurueckKnopf() {
-  if ($('zurueck')) return;
-  const b = el('button', 'grau', '← Zurück zur Anmeldung'); b.id = 'zurueck';
-  b.onclick = () => { b.remove(); zeigeNur('login'); };
-  $('anleitung').appendChild(b);
+  if (!EINGELOGGT) { zeigeNur('login'); return; }
+  if (t === 'codes') { zeigeNur('codes'); laden(); }
+  else { anleitungFuellen(); zeigeNur('anleitung'); }
 }
 
-// ---------- Freunde ----------
-try {
-  const s = JSON.parse(localStorage.getItem('codeapp') || 'null');
-  if (s) { NAME = s.n; PW = s.p; $('name').value = NAME; }
-} catch (e) {}
-
+// ================== Freunde ==================
+try { const s = JSON.parse(localStorage.getItem('codeapp') || 'null'); if (s) { NAME = s.n; PW = s.p; $('name').value = NAME; } } catch (e) {}
 function anmelden() { NAME = $('name').value.trim(); PW = $('pw').value; laden(true); }
 
 function wieLange(ms) {
   const min = Math.floor(ms / 60000);
   if (min < 1) return 'gerade eben';
   if (min < 60) return 'vor ' + min + ' Min.';
-  const h = Math.floor(min / 60); return 'vor ' + h + ' Std. ' + (min % 60) + ' Min.';
+  const h = Math.floor(min / 60); return 'vor ' + h + ' Std.';
 }
-
+function ring(r) {
+  const gesamt = GUELTIG_MIN * 60000, rest = Math.max(0, gesamt - (Date.now() - r.zeit)), anteil = rest / gesamt, U = 2 * Math.PI * 23;
+  const box = el('div', 'ring');
+  box.innerHTML = '<svg viewBox="0 0 54 54"><circle class="bahn" cx="27" cy="27" r="23" fill="none" stroke-width="5"/><circle class="rest" cx="27" cy="27" r="23" fill="none" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + U + '" stroke-dashoffset="' + (U * (1 - anteil)) + '"/></svg>';
+  const min = Math.ceil(rest / 60000);
+  box.appendChild(el('span', '', rest > 0 ? min + "'" : '0'));
+  box.setAttribute('aria-label', rest > 0 ? 'noch etwa ' + min + ' Minuten gültig' : 'wahrscheinlich abgelaufen');
+  return box;
+}
 function karte(r, alt) {
-  const k = el('div', 'karte' + (alt ? ' alt' : ''));
-  const kopf = el('div', 'kopf');
-  kopf.appendChild(el('span', 'dienst', r.dienst));
-  kopf.appendChild(el('span', 'zeit', new Date(r.zeit).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · ' + wieLange(Date.now() - r.zeit)));
+  const k = el('article', 'ticket' + (alt ? ' alt' : '') + (alt ? '' : ' einblenden'));
+  const kopf = el('div', 'ticket-kopf');
+  kopf.append(el('span', 'dienst', r.dienst), el('span', 'zeit', wieLange(Date.now() - r.zeit)));
   k.appendChild(kopf);
   k.appendChild(el('div', 'betreff', r.betreff));
   if (r.code) {
-    const c = el('div', 'code', r.code); c.title = 'Tippen zum Kopieren';
-    c.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(r.code).then(() => toast('Code kopiert ✓'), () => {}); };
-    k.appendChild(c);
+    const zr = el('div', 'code-reihe');
+    const c = el('button', 'code', r.code); c.title = 'Antippen zum Kopieren'; c.setAttribute('aria-label', 'Code ' + r.code.split('').join(' ') + ', antippen zum Kopieren');
+    c.onclick = () => kopiere(r.code, 'Code kopiert');
+    zr.appendChild(c);
+    if (!alt) zr.appendChild(ring(r));
+    k.appendChild(zr);
+    if (!alt) k.appendChild(el('div', 'hinweis-zeile', 'Antippen zum Kopieren. Der Ring zeigt, wie lange der Code noch gilt.'));
   }
-  if (!alt) {
-    const rest = GUELTIG_MIN - Math.floor((Date.now() - r.zeit) / 60000);
-    k.appendChild(el('div', 'gueltig' + (rest <= 0 ? ' weg' : ''), rest > 0 ? '⏱ noch ca. ' + rest + ' Min. gültig · tippen zum Kopieren' : '⏱ wahrscheinlich abgelaufen. Neuen Code anfordern.'));
-  }
-  r.links.forEach(l => {
+  (r.links || []).forEach(l => {
     const a = el('a', 'link', l.label); a.href = l.url; a.target = '_blank'; a.rel = 'noopener';
     a.onclick = () => { api({ aktion: 'klick', name: NAME, pw: PW, dienst: r.dienst, betreff: r.betreff, label: l.label }).catch(() => {}); };
     k.appendChild(a);
@@ -300,11 +671,10 @@ function karte(r, alt) {
   return k;
 }
 
-let BEKANNT = [];   // IDs der aktuellen Codes beim letzten Laden
-
+let BEKANNT = [];
 async function laden(vomLogin, warten) {
   const status = EINGELOGGT ? $('status') : $('loginFehler');
-  if (!warten) status.textContent = 'Lade …';
+  if (!warten) status.textContent = 'Wird geladen …';
   try {
     const res = await api({ aktion: 'codes', name: NAME, pw: PW, warten: !!warten, bekannt: BEKANNT });
     const neueIds = res.ergebnisse.filter(r => r.aktuell).map(r => r.id);
@@ -313,44 +683,44 @@ async function laden(vomLogin, warten) {
     try { if ($('merken').checked) localStorage.setItem('codeapp', JSON.stringify({ n: NAME, p: PW })); else localStorage.removeItem('codeapp'); } catch (e) {}
     EINGELOGGT = true; DIENSTE = res.dienste || [];
     $('loginFehler').textContent = '';
-    $('status').textContent = 'Stand: ' + new Date().toLocaleTimeString('de-DE');
+    if (!WARTEN) $('status').textContent = 'Stand ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
     $('wer').textContent = res.name;
+    $('banner').innerHTML = '';
+    if (res.hinweis) { const b = el('div', 'banner'); b.append(ico('info'), el('div', '', res.hinweis)); $('banner').appendChild(b); }
     const akt = res.ergebnisse.filter(r => r.aktuell), alt = res.ergebnisse.filter(r => !r.aktuell);
     $('aktuell').innerHTML = ''; $('verlauf').innerHTML = '';
-    if (!akt.length) $('aktuell').appendChild(el('div', 'leer', 'Gerade kein neuer Code. Fordere ihn am Fernseher an und tippe dann auf „Aktualisieren“. Wie das geht, steht unter 📖 Anleitung.'));
+    if (!akt.length) {
+      const l = el('div', 'leer');
+      l.innerHTML = '<b>Gerade kein neuer Code.</b><br>Starte die Anmeldung am Fernseher und tippe dann auf „Auf Code warten“. Wie das geht, steht unter Anleitung.';
+      $('aktuell').appendChild(l);
+    }
     akt.forEach(r => $('aktuell').appendChild(karte(r, false)));
-    if (!alt.length) $('verlauf').appendChild(el('div', 'leer', 'Noch keine älteren Codes.'));
+    $('verlaufBox').hidden = !alt.length;
+    $('verlaufZahl').textContent = alt.length ? '(' + alt.length + ')' : '';
     alt.forEach(r => $('verlauf').appendChild(karte(r, true)));
-    if (vomLogin || $('codes').style.display === 'none') zeigeNur('codes');
+    if (vomLogin || $('codes').hidden) zeigeNur('codes');
     return neuDa;
   } catch (err) {
-    if (EINGELOGGT && !/Passwort|gesperrt|Fehlversuche|Namen|Freigabe/.test(err.message)) { $('status').textContent = '⚠️ ' + err.message; wartenStopp(); return false; }
-    wartenStopp();
-    EINGELOGGT = false; zeigeNur('login'); $('loginFehler').textContent = err.message;
-    return false;
+    if (EINGELOGGT && !/Passwort|gesperrt|Fehlversuche|Namen|Freigabe/.test(err.message)) { $('status').textContent = err.message; wartenStopp(); return false; }
+    wartenStopp(); EINGELOGGT = false; zeigeNur('login'); $('loginFehler').textContent = err.message; return false;
   }
 }
 
-// ---------- Auf Code warten: 2 Minuten lang alle 5 Sekunden nachsehen ----------
+// Auf Code warten: 2 Minuten lang alle 5 Sekunden nachsehen
 let WARTEN = null;
-function wartenUmschalten() { WARTEN ? wartenStopp('Warten abgebrochen.') : wartenStart(); }
+function wartenUmschalten() { WARTEN ? wartenStopp('Warten beendet.') : wartenStart(); }
 function wartenStart() {
-  const ende = Date.now() + 120000;
-  const k = $('wartenKnopf'); k.classList.add('warten-an');
+  const ende = Date.now() + 120000, k = $('wartenKnopf');
+  k.classList.add('zweit');
   const runde = async () => {
     if (!WARTEN) return;
     const rest = Math.ceil((ende - Date.now()) / 1000);
-    if (rest <= 0) { wartenStopp('Kein neuer Code in 2 Minuten. Am Fernseher neu anfordern und nochmal warten.'); return; }
-    k.textContent = '⏹ Warten stoppen (' + rest + ' s)';
+    if (rest <= 0) { wartenStopp('Kein neuer Code in 2 Minuten. Am Fernseher neu anfordern und noch einmal warten.'); return; }
+    k.querySelector('span').textContent = 'Warten beenden (' + rest + ' s)';
+    $('status').textContent = 'Warte auf einen neuen Code …';
     const neu = await laden(false, true);
     if (!WARTEN) return;
-    if (neu) {
-      wartenStopp('✅ Neuer Code ist da!');
-      toast('Neuer Code ist da! 🎉');
-      try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {}
-      window.scrollTo(0, 0);
-      return;
-    }
+    if (neu) { wartenStopp('Neuer Code ist da.'); toast('Neuer Code ist da'); vibriere([180, 90, 180]); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     WARTEN = setTimeout(runde, 5000);
   };
   WARTEN = setTimeout(runde, 0);
@@ -359,210 +729,232 @@ function wartenStopp(text) {
   if (WARTEN) clearTimeout(WARTEN);
   WARTEN = null;
   const k = $('wartenKnopf'); if (!k) return;
-  k.classList.remove('warten-an'); k.textContent = '⏳ Auf Code warten';
+  k.classList.remove('zweit'); k.querySelector('span').textContent = 'Auf Code warten';
   if (text) $('status').textContent = text;
 }
-
-// ---------- Registrieren & Einladung ----------
-let EINLADUNG = '';
-async function einladungZeigen(code) {
-  EINLADUNG = code; zeigeNur('einladung');
-  $('eStatus').textContent = 'Prüfe Link …';
-  try { const i = await api({ aktion: 'einladungInfo', code }); $('eName').textContent = ', ' + i.name; $('eStatus').textContent = ''; }
-  catch (err) { $('eStatus').textContent = err.message; }
-}
-async function einladungAnnehmen() {
-  if ($('ePw').value !== $('ePw2').value) { $('eStatus').textContent = 'Die Passwörter sind nicht gleich.'; return; }
-  $('eStatus').textContent = 'Speichere …';
-  try {
-    const r = await api({ aktion: 'einladungAnnehmen', code: EINLADUNG, pw: $('ePw').value });
-    NAME = r.name; PW = $('ePw').value; $('name').value = NAME; $('merken').checked = true;
-    $('ePw').value = ''; $('ePw2').value = '';
-    history.replaceState(null, '', location.pathname);
-    laden(true);
-  } catch (err) { $('eStatus').textContent = err.message; }
-}
-
 function abmelden() {
   wartenStopp(); BEKANNT = [];
   try { localStorage.removeItem('codeapp'); } catch (e) {}
   NAME = ''; PW = ''; EINGELOGGT = false; $('pw').value = '';
   zeigeNur('login');
 }
+// Ring und "vor X Min." regelmäßig auffrischen, ohne neu zu laden
+setInterval(() => { if (EINGELOGGT && !$('codes').hidden && !WARTEN) laden(); }, 60000);
 
 function anleitungFuellen() {
   const finde = s => DIENSTE.find(d => d.name.toLowerCase().includes(s));
   const nf = finde('netflix'), am = finde('amazon') || finde('prime');
   const setze = (cls, d) => document.querySelectorAll('.' + cls).forEach(x => {
     x.innerHTML = '';
-    if (d && d.login) { x.append('('); const m = el('span', 'mail', d.login); m.onclick = () => navigator.clipboard && navigator.clipboard.writeText(d.login).then(() => toast('E-Mail kopiert ✓')); x.append(m, ')'); }
+    if (d && d.login) { x.append(' ('); const m = el('span', 'mail', d.login); m.title = 'Antippen zum Kopieren'; m.onclick = () => kopiere(d.login, 'E-Mail kopiert'); x.append(m, ')'); }
   });
   setze('nflogin', nf); setze('amlogin', am);
   $('loginInfo').innerHTML = '';
-  if (!EINGELOGGT) $('loginInfo').appendChild(el('div', 'hinweis', 'Tipp: Melde dich an, dann siehst du hier auch die E-Mail-Adressen, mit denen du dich anmeldest.'));
+  if (DIENSTE.some(d => d.login)) $('loginInfo').appendChild(el('p', 'tipp', 'Tipp: Unterstrichene E-Mail-Adressen kannst du antippen, dann sind sie kopiert.'));
 }
 
-// ---------- Admin ----------
+// ================== Einladung annehmen ==================
+let EINLADUNG = '';
+async function einladungZeigen(code) {
+  EINLADUNG = code; zeigeNur('einladung');
+  $('eStatus').textContent = 'Link wird geprüft …';
+  try { const i = await api({ aktion: 'einladungInfo', code }); $('eName').textContent = ', ' + i.name; $('eStatus').textContent = ''; }
+  catch (err) { $('eStatus').textContent = err.message; }
+}
+async function einladungAnnehmen() {
+  if ($('ePw').value !== $('ePw2').value) { $('eStatus').textContent = 'Die beiden Passwörter sind nicht gleich.'; return; }
+  $('eStatus').textContent = 'Wird gespeichert …';
+  try {
+    const r = await api({ aktion: 'einladungAnnehmen', code: EINLADUNG, pw: $('ePw').value });
+    NAME = r.name; PW = $('ePw').value; $('name').value = NAME; $('merken').checked = true;
+    $('ePw').value = ''; $('ePw2').value = '';
+    history.replaceState(null, '', location.pathname);
+    await laden(true);
+    toast('Willkommen, ' + r.name);
+  } catch (err) { $('eStatus').textContent = err.message; }
+}
+
+// ================== Admin ==================
 async function adminLogin() {
-  $('aFehler').textContent = 'Prüfe …';
+  $('aFehler').textContent = 'Wird geprüft …';
   try {
     TOKEN = await api({ aktion: 'adminLogin', pw: $('aPw').value, totp: $('aTotp').value });
     $('aPw').value = ''; $('aTotp').value = ''; $('aFehler').textContent = '';
     zeigeNur('adminPanel'); adminLaden();
   } catch (err) { $('aFehler').textContent = err.message; }
 }
-function adminFehler(err) {
-  $('pFehler').textContent = err.message;
-  if (/abgelaufen/.test(err.message)) { TOKEN = null; zeigeNur('adminLogin'); }
+function adminFehler(err) { $('pFehler').textContent = err.message; if (/abgelaufen/.test(err.message)) { TOKEN = null; zeigeNur('adminLogin'); } }
+async function adminAktion(daten, meldung) {
+  try { await api(Object.assign({ token: TOKEN }, daten)); if (meldung) toast(meldung); adminLaden(); } catch (err) { adminFehler(err); }
 }
-function zelle(tr, text, tag) { const c = document.createElement(tag || 'td'); c.textContent = text; tr.appendChild(c); return c; }
-
-async function adminLaden() {
-  try {
-    const [d, dienste] = await Promise.all([api({ aktion: 'adminDaten', token: TOKEN }), api({ aktion: 'adminDienste', token: TOKEN })]);
-    $('pFehler').textContent = '';
-    DIENST_NAMEN = d.dienstNamen || [];
-    const andere = d.nutzer;
-
-    // Alle Nutzer mit Rechten
-    $('nutzerListe').innerHTML = andere.length ? '' : '<div class="klein-text">Noch keine Nutzer.</div>';
-    andere.forEach(n => {
-      const k = el('div', 'nutzer-karte');
-      const kopf = el('div'); kopf.appendChild(el('b', '', n.name));
-      kopf.appendChild(el('span', 'badge ' + (n.aktiv ? 'aktiv' : 'gesperrt'), n.aktiv ? 'aktiv' : 'gesperrt'));
-      k.appendChild(kopf);
-      k.appendChild(el('div', 'klein-text', 'Darf sehen (nichts angehakt = alle):'));
-      const checks = dienstChecks(n.dienste); k.appendChild(checks);
-      const kn = el('div', 'knoepfe');
-      const sp = el('button', 'klein gruen', '💾 Rechte speichern');
-      sp.onclick = () => adminAktion({ aktion: 'adminNutzerRechte', nname: n.name, dienste: gewaehlt(checks) }, 'Gespeichert ✓');
-      const an = el('button', 'klein ' + (n.aktiv ? '' : 'gruen'), n.aktiv ? '⛔ Sperren' : '✅ Freischalten');
-      an.onclick = () => adminAktion({ aktion: 'adminAktiv', nname: n.name, aktiv: !n.aktiv });
-      const lo = el('button', 'klein grau', '🗑 Löschen');
-      lo.onclick = () => { if (confirmOk(n.name + ' wirklich löschen?')) adminAktion({ aktion: 'adminNutzerLoeschen', nname: n.name }); };
-      kn.append(sp, an, lo); k.appendChild(kn);
-      $('nutzerListe').appendChild(k);
-    });
-
-    // Einladungen
-    const iD = $('iDienste'); iD.innerHTML = ''; iD.appendChild(dienstChecks([]));
-    $('iOffen').innerHTML = '';
-    if (d.einladungen.length) $('iOffen').appendChild(el('div', 'klein-text', 'Offene Einladungen:'));
-    d.einladungen.forEach(e => {
-      const z = el('div', 'knoepfe');
-      z.appendChild(el('span', 'klein-text', e.name + ' · gültig bis ' + new Date(e.bis).toLocaleDateString('de-DE')));
-      const c = el('button', 'klein grau', '📋 Link'); c.onclick = () => kopiere(einladungsLink(e.code), 'Link kopiert ✓');
-      const x = el('button', 'klein grau', '🗑'); x.onclick = () => adminAktion({ aktion: 'adminEinladungLoeschen', code: e.code });
-      z.append(c, x); $('iOffen').appendChild(z);
-    });
-    const lt = $('log'); lt.innerHTML = '';
-    const lh = document.createElement('tr'); ['Zeit', 'Wer', 'Aktion', 'Dienst', 'Ergebnis'].forEach(x => zelle(lh, x, 'th')); lt.appendChild(lh);
-    d.log.forEach(r => {
-      const tr = document.createElement('tr');
-      [r[0], r[1], r[2], r[3], r[5]].forEach((v, i) => { const c = zelle(tr, v); if (i === 2 && /FEHLGESCHLAGEN/.test(v)) c.className = 'warn'; });
-      lt.appendChild(tr);
-    });
-    diensteZeigen(dienste);
-  } catch (err) { adminFehler(err); }
-}
-
 let DIENST_NAMEN = [];
-function confirmOk(t) { return window.confirm(t); }
-function kopiere(text, meldung) { navigator.clipboard && navigator.clipboard.writeText(text).then(() => toast(meldung || 'Kopiert ✓'), () => {}); }
-function einladungsLink(code) { return location.origin + location.pathname + '#einladung=' + code; }
-function dienstChecks(gewaehlteNamen) {
-  const box = el('div', 'checks');
-  DIENST_NAMEN.forEach(name => {
-    const l = el('label'); const c = el('input'); c.type = 'checkbox'; c.value = name; c.checked = (gewaehlteNamen || []).indexOf(name) >= 0;
-    l.append(c, name); box.appendChild(l);
-  });
+function dienstChips(gewaehlt) {
+  const box = el('div', 'chips');
+  DIENST_NAMEN.forEach(n => { const l = el('label', 'chip'); const c = el('input'); c.type = 'checkbox'; c.value = n; c.checked = (gewaehlt || []).indexOf(n) >= 0; l.append(c, n); box.appendChild(l); });
   return box;
 }
 function gewaehlt(box) { return [...box.querySelectorAll('input:checked')].map(c => c.value); }
-async function adminAktion(daten, meldung) {
-  try { await api(Object.assign({ token: TOKEN }, daten)); if (meldung) toast(meldung); adminLaden(); }
-  catch (err) { adminFehler(err); }
+function einladungsLink(code) { return APP_LINK + '#einladung=' + code; }
+function einladungsText(name, link) {
+  return 'Hallo ' + name + ',\n\nhier ist dein persönlicher Zugang zur App „' + CONFIG.titel + '“. Damit bekommst du die Anmelde-Codes für Netflix und Prime Video am Fernseher, ohne jedes Mal fragen zu müssen.\n\n' +
+    'Dein Link:\n' + link + '\n\n' +
+    'So geht\'s:\n' +
+    '1. Link öffnen und dein eigenes Passwort festlegen.\n' +
+    '2. App auf den Home-Bildschirm holen.\n   iPhone: in Safari auf „Teilen“ und dann „Zum Home-Bildschirm“.\n   Android: in Chrome auf „App installieren“.\n' +
+    '3. Am Fernseher bei Netflix oder Prime Video die Anmeldung starten und den Code per E-Mail anfordern.\n' +
+    '4. In der App auf „Auf Code warten“ tippen. Der Code erscheint nach ein paar Sekunden.\n\n' +
+    'Unter „Anleitung“ in der App steht alles noch einmal Schritt für Schritt.\n\n' +
+    'Wichtig: Der Link gilt 7 Tage und funktioniert nur einmal. Bitte nicht weitergeben.';
+}
+async function adminLaden() {
+  try {
+    const [d, dienste, codes, cfg] = await Promise.all([
+      api({ aktion: 'adminDaten', token: TOKEN }), api({ aktion: 'adminDienste', token: TOKEN }),
+      api({ aktion: 'adminCodes', token: TOKEN }), api({ aktion: 'adminConfig', token: TOKEN })]);
+    $('pFehler').textContent = '';
+    DIENST_NAMEN = d.dienstNamen || [];
+    // Einladung
+    $('iDienste').innerHTML = ''; $('iDienste').appendChild(dienstChips([]));
+    $('iOffen').innerHTML = '';
+    if (d.einladungen.length) {
+      $('iOffen').appendChild(el('p', 'sektion-titel', 'Offene Einladungen'));
+      const g = el('div', 'gruppe');
+      d.einladungen.forEach(e => {
+        const z = el('div', 'zeile');
+        z.append(el('span', 'wachsen', e.name), el('span', 'klein', 'bis ' + new Date(e.bis).toLocaleDateString('de-DE')));
+        const c = el('button', 'knopf zweit klein', 'Text'); c.onclick = () => kopiere(einladungsText(e.name, einladungsLink(e.code)), 'Einladungstext kopiert');
+        const x = el('button', 'knopf rot klein', 'Löschen'); x.onclick = () => adminAktion({ aktion: 'adminEinladungLoeschen', code: e.code }, 'Einladung gelöscht');
+        z.append(c, x); g.appendChild(z);
+      });
+      $('iOffen').appendChild(g);
+    }
+    // Personen
+    const nl = $('nutzerListe'); nl.innerHTML = '';
+    if (!d.nutzer.length) nl.appendChild(el('div', 'zeile klein', 'Noch keine Personen. Erstelle oben eine Einladung.'));
+    d.nutzer.forEach(n => {
+      const k = el('div', 'nutzer');
+      const kopf = el('div', 'nutzer-kopf'); kopf.append(el('span', '', n.name), el('span', 'badge ' + (n.aktiv ? 'aktiv' : 'gesperrt'), n.aktiv ? 'aktiv' : 'gesperrt'));
+      k.appendChild(kopf);
+      k.appendChild(el('div', 'klein', 'Darf Codes sehen von (nichts gewählt = alle)'));
+      const ch = dienstChips(n.dienste); ch.style.marginTop = '8px'; k.appendChild(ch);
+      const ak = el('div', 'aktionen');
+      const sp = el('button', 'knopf klein', 'Speichern'); sp.onclick = () => adminAktion({ aktion: 'adminNutzerRechte', nname: n.name, dienste: gewaehlt(ch) }, 'Gespeichert');
+      const an = el('button', 'knopf zweit klein', n.aktiv ? 'Sperren' : 'Freischalten'); an.onclick = () => adminAktion({ aktion: 'adminAktiv', nname: n.name, aktiv: !n.aktiv }, n.aktiv ? 'Gesperrt' : 'Freigeschaltet');
+      const lo = el('button', 'knopf rot klein', 'Löschen'); lo.onclick = () => { if (confirm(n.name + ' wirklich löschen?')) adminAktion({ aktion: 'adminNutzerLoeschen', nname: n.name }, 'Gelöscht'); };
+      ak.append(sp, an, lo); k.appendChild(ak); nl.appendChild(k);
+    });
+    // Aussehen
+    $('cTitel').value = cfg.titel || ''; $('cHinweis').value = cfg.hinweis || ''; $('cSchnee').checked = cfg.schnee !== false; $('cSchnee').onchange = () => configSpeichern();
+    const themes = [['auto', 'Automatisch'], ['standard', 'Standard'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['sommer', 'Sommer'], ['halloween', 'Halloween']];
+    $('cTheme').innerHTML = '';
+    themes.forEach(([w, t]) => { const l = el('label'); const r = el('input'); r.type = 'radio'; r.name = 'theme'; r.value = w; r.checked = cfg.theme === w;
+      r.onchange = () => configSpeichern(); l.append(r, t); $('cTheme').appendChild(l); });
+    // Dienste
+    $('diensteListe').innerHTML = ''; dienste.forEach(x => $('diensteListe').appendChild(dienstFeld(x)));
+    // Codes & gesperrte
+    $('adminCodes').innerHTML = '';
+    if (!codes.codes.length) $('adminCodes').appendChild(el('div', 'leer', 'Keine Codes in den letzten 24 Stunden.'));
+    codes.codes.forEach(r => $('adminCodes').appendChild(karte(r, true)));
+    const gl = $('gesperrtListe'); gl.innerHTML = '';
+    if (!codes.gesperrt.length) gl.appendChild(el('div', 'zeile klein', 'Keine gesperrten Mails in den letzten 24 Stunden.'));
+    codes.gesperrt.forEach(g => { const z = el('div', 'gesperrt-zeile'); z.append(el('div', '', g.dienst + ': ' + g.betreff), el('div', 'klein', g.grund + ', ' + wieLange(Date.now() - g.zeit))); gl.appendChild(z); });
+    // Protokoll
+    const lt = $('log'); lt.innerHTML = '';
+    d.log.forEach(r => {
+      const tr = document.createElement('tr');
+      const t1 = el('td', 'klein', r[0]); const t2 = el('td', 'wer', r[1]); const t3 = el('td', /FEHLGESCHLAGEN/.test(r[2]) ? 'warn' : '', r[2] + (r[3] ? ', ' + r[3] : '') + (r[5] ? ': ' + r[5] : ''));
+      tr.append(t1, t2, t3); lt.appendChild(tr);
+    });
+  } catch (err) { adminFehler(err); }
 }
 async function einladungErstellen() {
   try {
-    const box = $('iDienste').firstChild;
-    const code = await api({ aktion: 'adminEinladung', token: TOKEN, nname: $('iName').value, dienste: gewaehlt(box) });
-    const link = einladungsLink(code);
-    $('iErgebnis').innerHTML = '';
-    $('iErgebnis').appendChild(el('div', 'linkbox', link));
-    const k = el('button', 'gruen', '📋 Link kopieren'); k.onclick = () => kopiere(link, 'Link kopiert ✓');
-    $('iErgebnis').appendChild(k);
-    if (navigator.share) { const s = el('button', 'grau', '📤 Teilen (WhatsApp …)'); s.onclick = () => navigator.share({ title: 'Einladung', text: 'Hier ist dein Zugang zur Code-App:', url: link }).catch(() => {}); $('iErgebnis').appendChild(s); }
+    const name = $('iName').value.trim();
+    const code = await api({ aktion: 'adminEinladung', token: TOKEN, nname: name, dienste: gewaehlt($('iDienste').firstChild) });
+    const link = einladungsLink(code), text = einladungsText(name, link);
+    const box = $('iErgebnis'); box.innerHTML = '';
+    box.appendChild(el('p', 'sektion-titel', 'Einladung für ' + name));
+    const g = el('div', 'gruppe'); g.style.padding = '4px 16px 16px';
+    g.appendChild(el('div', 'nachricht', text));
+    const r = el('div', 'reihe');
+    const k1 = el('button', 'knopf', ''); k1.append(ico('kopie'), 'Text kopieren'); k1.onclick = () => kopiere(text, 'Einladungstext kopiert');
+    r.appendChild(k1);
+    if (navigator.share) { const k2 = el('button', 'knopf zweit', ''); k2.append(ico('teilen'), 'Teilen'); k2.onclick = () => navigator.share({ title: 'Einladung', text }).catch(() => {}); r.appendChild(k2); }
+    g.appendChild(r);
+    const k3 = el('button', 'knopf still', 'Nur den Link kopieren'); k3.onclick = () => kopiere(link, 'Link kopiert'); g.appendChild(k3);
+    box.appendChild(g);
     $('iName').value = '';
     adminLaden();
   } catch (err) { adminFehler(err); }
 }
-
-function diensteZeigen(liste) {
-  const box = $('diensteListe'); box.innerHTML = '';
-  liste.forEach(d => box.appendChild(dienstFeld(d)));
+async function configSpeichern() {
+  const theme = (document.querySelector('#cTheme input:checked') || {}).value || 'auto';
+  try {
+    const c = await api({ aktion: 'adminConfigSpeichern', token: TOKEN, config: { titel: $('cTitel').value, theme, hinweis: $('cHinweis').value, schnee: $('cSchnee').checked } });
+    themeAnwenden(c); toast('Gespeichert. Alle sehen es beim nächsten Öffnen.');
+  } catch (err) { adminFehler(err); }
 }
 function dienstFeld(d) {
   const w = el('div', 'dienst-edit');
-  const n = el('input'); n.placeholder = 'Name (z. B. Netflix)'; n.value = d.name || ''; n.className = 'd-name';
-  const l = el('input'); l.placeholder = 'Login-E-Mail des Kontos (für die Anleitung)'; l.value = d.login || ''; l.className = 'd-login'; l.type = 'email';
-  const a = el('textarea'); a.placeholder = 'Absender, eine pro Zeile'; a.value = (d.absender || []).join('\n'); a.className = 'd-abs';
-  const x = el('button', 'klein grau', '🗑 Entfernen'); x.onclick = () => w.remove();
-  w.append(el('div', 'klein-text', 'Name'), n, el('div', 'klein-text', 'Login-E-Mail'), l, el('div', 'klein-text', 'Absender'), a, x);
-  return w;
+  const z1 = el('div', 'zeile'); const l1 = el('label', 'titel', 'Name'); const n = el('input', 'wachsen d-name'); n.value = d.name || ''; n.placeholder = 'z. B. Netflix'; z1.append(l1, n);
+  const z2 = el('div', 'zeile'); const l2 = el('label', 'titel', 'Login-E-Mail'); const l = el('input', 'wachsen d-login'); l.type = 'email'; l.value = d.login || ''; l.placeholder = 'für die Anleitung'; z2.append(l2, l);
+  const z3 = el('div', 'zeile'); z3.style.alignItems = 'flex-start'; const l3 = el('label', 'titel', 'Absender'); const a = el('textarea', 'wachsen d-abs'); a.value = (d.absender || []).join('\n'); a.placeholder = 'eine Adresse oder Domain pro Zeile'; z3.append(l3, a);
+  const z4 = el('div', 'zeile'); const x = el('button', 'knopf rot klein', 'Dienst entfernen'); x.onclick = () => w.remove(); z4.appendChild(x);
+  w.append(z1, z2, z3, z4); return w;
 }
 function dienstHinzu() { $('diensteListe').appendChild(dienstFeld({})); }
 async function diensteSpeichern() {
-  const liste = [...document.querySelectorAll('.dienst-edit')].map(w => ({
-    name: w.querySelector('.d-name').value, login: w.querySelector('.d-login').value,
-    absender: w.querySelector('.d-abs').value.split(/[\s,;]+/).filter(Boolean)
-  }));
-  $('dStatus').textContent = 'Speichere …';
-  try {
-    const gespeichert = await api({ aktion: 'adminDiensteSpeichern', token: TOKEN, liste });
-    diensteZeigen(gespeichert);
-    $('dStatus').textContent = '✅ Gespeichert. Ungültige Adressen wurden entfernt.';
-  } catch (err) { $('dStatus').textContent = ''; adminFehler(err); }
+  const liste = [...document.querySelectorAll('.dienst-edit')].map(w => ({ name: w.querySelector('.d-name').value, login: w.querySelector('.d-login').value, absender: w.querySelector('.d-abs').value.split(/[\s,;]+/).filter(Boolean) }));
+  try { const g = await api({ aktion: 'adminDiensteSpeichern', token: TOKEN, liste }); $('diensteListe').innerHTML = ''; g.forEach(x => $('diensteListe').appendChild(dienstFeld(x))); toast('Dienste gespeichert'); }
+  catch (err) { adminFehler(err); }
 }
-
 async function nutzerSpeichern() {
-  try {
-    await api({ aktion: 'adminNutzer', token: TOKEN, nname: $('nName').value, npw: $('nPw').value });
-    $('nName').value = ''; $('nPw').value = ''; adminLaden();
-  } catch (err) { adminFehler(err); }
+  try { await api({ aktion: 'adminNutzer', token: TOKEN, nname: $('nName').value, npw: $('nPw').value }); $('nName').value = ''; $('nPw').value = ''; toast('Gespeichert'); adminLaden(); }
+  catch (err) { adminFehler(err); }
 }
-function adminLogout() {
-  if (TOKEN) api({ aktion: 'adminLogout', token: TOKEN }).catch(() => {});
-  TOKEN = null; location.hash = '';
-}
+function adminLogout() { if (TOKEN) api({ aktion: 'adminLogout', token: TOKEN }).catch(() => {}); TOKEN = null; location.hash = ''; }
 
-// ---------- Ansicht wählen ----------
+// ================== Start ==================
 function route() {
   const ein = location.hash.match(/^#einladung=([a-f0-9]+)$/i);
-  if (ein) { $('tabs').style.display = 'none'; einladungZeigen(ein[1]); return; }
-  if (location.hash === '#admin') { $('tabs').style.display = 'none'; zeigeNur(TOKEN ? 'adminPanel' : 'adminLogin'); }
-  else if (EINGELOGGT) zeigeNur('codes');
-  else if (NAME && PW) laden(true);
+  if (ein) { einladungZeigen(ein[1]); return; }
+  if (location.hash === '#admin') { zeigeNur(TOKEN ? 'adminPanel' : 'adminLogin'); return; }
+  if (EINGELOGGT) zeigeNur('codes');
+  else if (NAME && PW) { zeigeNur('codes'); $('status').textContent = 'Wird geladen …'; laden(true); }
   else zeigeNur('login');
 }
 window.addEventListener('hashchange', route);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && EINGELOGGT && $('codes').style.display !== 'none') laden(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  api({ aktion: 'config' }).then(themeAnwenden).catch(() => {});   // Design vom Admin übernehmen
+  if (SW_REG) SW_REG.update().catch(() => {});                        // nach neuer App-Version sehen
+  if (EINGELOGGT && !$('codes').hidden) laden();
+});
 route();
 
-// ---------- Installierbar machen ----------
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+// Installierbar machen
+// Updates: Gibt es eine neue Version auf GitHub, lädt sich die App einmal von selbst neu.
+var SW_REG = null;
+if ('serviceWorker' in navigator) {
+  const hatteSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { SW_REG = r; r.update().catch(() => {}); }).catch(() => {});
+  let neuGeladen = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hatteSW || neuGeladen) return; neuGeladen = true;
+    if (!WARTEN && $('adminPanel').hidden) location.reload();
+  });
+}
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 let installEvent = null;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault(); installEvent = e;
-  const h = $('installHinweis'); h.style.display = ''; h.innerHTML = '';
-  const b = el('button', 'gruen', '📲 Als App installieren');
-  b.onclick = async () => { installEvent.prompt(); await installEvent.userChoice; h.style.display = 'none'; };
+  const h = $('installHinweis'); h.innerHTML = '';
+  const b = el('button', 'knopf zweit', 'Als App installieren');
+  b.onclick = async () => { installEvent.prompt(); await installEvent.userChoice; h.innerHTML = ''; };
   h.appendChild(b);
 });
 if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
-  const h = $('installHinweis'); h.style.display = '';
-  h.textContent = '📲 Als App installieren: Unten auf „Teilen“ (Quadrat mit Pfeil) tippen → „Zum Home-Bildschirm“.';
+  $('installHinweis').appendChild(el('p', 'tipp', 'Als App installieren: In Safari unten auf „Teilen“ tippen und dann „Zum Home-Bildschirm“ wählen.'));
 }
 </script>
 </body>
