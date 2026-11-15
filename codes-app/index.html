@@ -934,15 +934,20 @@ route();
 
 // Installierbar machen
 // Updates: Gibt es eine neue Version auf GitHub, lädt sich die App einmal von selbst neu.
-var SW_REG = null;
+var SW_REG = null, UPDATE_DA = false;
+// Neu laden nur, wenn dabei nichts verloren geht: nicht in der Verwaltung, nicht beim Warten, kein Feld ausgefüllt.
+function neustartWennRuhig() {
+  if (!UPDATE_DA || document.hidden || WARTEN || TOKEN) return;
+  const offen = [...document.querySelectorAll('.seite')].find(x => !x.hidden);
+  if (offen && ['adminLogin', 'adminPanel', 'einladung'].includes(offen.id)) return;
+  if ([...document.querySelectorAll('input:not([type=checkbox]):not([type=radio]), textarea')].some(i => i.value && i.id !== 'name')) return;
+  UPDATE_DA = false; location.reload();
+}
 if ('serviceWorker' in navigator) {
   const hatteSW = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { SW_REG = r; r.update().catch(() => {}); }).catch(() => {});
-  let neuGeladen = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hatteSW || neuGeladen) return; neuGeladen = true;
-    if (!WARTEN && $('adminPanel').hidden) location.reload();
-  });
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hatteSW) { UPDATE_DA = true; neustartWennRuhig(); } });
+  setInterval(neustartWennRuhig, 30000);
 }
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 let installEvent = null;
