@@ -1,5 +1,5 @@
 // Minimaler Service Worker: speichert nur die App-Hülle, niemals Codes.
-const CACHE = 'codes-v1';
+const CACHE = 'codes-v4';
 const DATEIEN = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
