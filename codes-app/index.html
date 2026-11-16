@@ -373,11 +373,18 @@ body.mit-kette { padding-top: max(46px, calc(env(safe-area-inset-top) + 34px)); 
   <div class="gruppe">
     <div class="zeile"><label class="titel" for="iName">Name</label><input id="iName" class="wachsen" placeholder="z. B. Lisa"></div>
     <div class="zeile" style="display:block"><div class="klein" style="margin-bottom:8px">Darf Codes sehen von (nichts gewählt = alle)</div><div id="iDienste" class="chips"></div></div>
+    <div class="zeile" style="display:block;padding-bottom:4px"><div class="klein">Link gültig für</div></div>
+    <div class="segment" id="iTage" style="padding-top:0">
+      <label><input type="radio" name="tage" value="1">1 Tag</label><label><input type="radio" name="tage" value="3">3 Tage</label>
+      <label><input type="radio" name="tage" value="7" checked>1 Woche</label><label><input type="radio" name="tage" value="14">2 Wochen</label>
+      <label><input type="radio" name="tage" value="30">1 Monat</label><label><input type="radio" name="tage" value="90">3 Monate</label>
+      <label><input type="radio" name="tage" value="365">1 Jahr</label>
+    </div>
   </div>
   <div class="abstand"></div>
   <button class="knopf" onclick="einladungErstellen()">Einladung erstellen</button>
   <div id="iErgebnis"></div>
-  <p class="sektion-fuss">Nur mit einem Einladungslink kann sich jemand neu anmelden. Er gilt 7 Tage und nur einmal.</p>
+  <p class="sektion-fuss">Nur mit einem Einladungslink kann sich jemand neu anmelden. Jeder Link funktioniert nur einmal, egal wie lange er gültig ist.</p>
   <div id="iOffen"></div>
 
   <p class="sektion-titel">Personen</p>
@@ -795,7 +802,7 @@ function dienstChips(gewaehlt) {
 }
 function gewaehlt(box) { return [...box.querySelectorAll('input:checked')].map(c => c.value); }
 function einladungsLink(code) { return APP_LINK + '#einladung=' + code; }
-function einladungsText(name, link) {
+function einladungsText(name, link, bis) {
   return 'Hallo ' + name + ',\n\nhier ist dein persönlicher Zugang zur App „' + CONFIG.titel + '“. Damit bekommst du die Anmelde-Codes für Netflix und Prime Video am Fernseher, ohne jedes Mal fragen zu müssen.\n\n' +
     'Dein Link:\n' + link + '\n\n' +
     'So geht\'s:\n' +
@@ -804,7 +811,7 @@ function einladungsText(name, link) {
     '3. Am Fernseher bei Netflix oder Prime Video die Anmeldung starten und den Code per E-Mail anfordern.\n' +
     '4. In der App auf „Auf Code warten“ tippen. Der Code erscheint nach ein paar Sekunden.\n\n' +
     'Unter „Anleitung“ in der App steht alles noch einmal Schritt für Schritt.\n\n' +
-    'Wichtig: Der Link gilt 7 Tage und funktioniert nur einmal. Bitte nicht weitergeben.';
+    'Wichtig: Der Link gilt bis ' + new Date(bis).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) + ' und funktioniert nur einmal. Bitte nicht weitergeben.';
 }
 async function adminLaden() {
   try {
@@ -822,7 +829,7 @@ async function adminLaden() {
       d.einladungen.forEach(e => {
         const z = el('div', 'zeile');
         z.append(el('span', 'wachsen', e.name), el('span', 'klein', 'bis ' + new Date(e.bis).toLocaleDateString('de-DE')));
-        const c = el('button', 'knopf zweit klein', 'Text'); c.onclick = () => kopiere(einladungsText(e.name, einladungsLink(e.code)), 'Einladungstext kopiert');
+        const c = el('button', 'knopf zweit klein', 'Text'); c.onclick = () => kopiere(einladungsText(e.name, einladungsLink(e.code), e.bis), 'Einladungstext kopiert');
         const x = el('button', 'knopf rot klein', 'Löschen'); x.onclick = () => adminAktion({ aktion: 'adminEinladungLoeschen', code: e.code }, 'Einladung gelöscht');
         z.append(c, x); g.appendChild(z);
       });
@@ -870,8 +877,10 @@ async function adminLaden() {
 async function einladungErstellen() {
   try {
     const name = $('iName').value.trim();
-    const code = await api({ aktion: 'adminEinladung', token: TOKEN, nname: name, dienste: gewaehlt($('iDienste').firstChild) });
-    const link = einladungsLink(code), text = einladungsText(name, link);
+    const tage = Number((document.querySelector('#iTage input:checked') || {}).value || 7);
+    const res = await api({ aktion: 'adminEinladung', token: TOKEN, nname: name, dienste: gewaehlt($('iDienste').firstChild), tage });
+    const code = typeof res === 'string' ? res : res.code, bis = res.bis || Date.now() + tage * 86400000;
+    const link = einladungsLink(code), text = einladungsText(name, link, bis);
     const box = $('iErgebnis'); box.innerHTML = '';
     box.appendChild(el('p', 'sektion-titel', 'Einladung für ' + name));
     const g = el('div', 'gruppe'); g.style.padding = '4px 16px 16px';
