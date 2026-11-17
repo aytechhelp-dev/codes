@@ -152,6 +152,8 @@ ol.schritte li::before { content: counter(s); position: absolute; left: 0; top: 
   border-top: .5px solid var(--linie); }
 .tabs button { flex: 0 1 160px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; color: var(--text2); font-size: 11px; font-weight: 500; padding: 4px 0; }
 .tabs button.an { color: var(--akzent); }
+.tabs button { position: relative; }
+.tabs button.neu::after { content: ""; position: absolute; top: 2px; left: calc(50% + 8px); width: 9px; height: 9px; border-radius: 50%; background: var(--warn); }
 .tabs .ico { width: 26px; height: 26px; }
 
 /* Meldung unten */
@@ -285,8 +287,7 @@ body.mit-kette { padding-top: max(46px, calc(env(safe-area-inset-top) + 34px)); 
   <p class="unter" id="status">Hier erscheinen deine Anmelde-Codes.</p>
   <div id="banner"></div>
   <div class="reihe" style="margin-bottom:16px">
-    <button class="knopf zweit" onclick="laden()"><svg class="ico"><use href="#i-neu"/></svg>Aktualisieren</button>
-    <button class="knopf" id="wartenKnopf" onclick="wartenUmschalten()"><svg class="ico"><use href="#i-uhr"/></svg><span>Auf Code warten</span></button>
+    <button class="knopf zweit" onclick="laden()"><svg class="ico"><use href="#i-neu"/></svg>Jetzt aktualisieren</button>
   </div>
   <div id="aktuell"></div>
   <details class="klapp" id="verlaufBox" hidden>
@@ -309,7 +310,7 @@ body.mit-kette { padding-top: max(46px, calc(env(safe-area-inset-top) + 34px)); 
       <ol class="schritte">
         <li>Netflix-App am Fernseher öffnen und <b>Anmelden</b> wählen.</li>
         <li>Die E-Mail-Adresse des Kontos eingeben<span class="nflogin"></span> und <b>Weiter</b> drücken.</li>
-        <li>Netflix schickt einen 4-stelligen Code. Hier unter <b>Codes</b> auf <b>Auf Code warten</b> tippen.</li>
+        <li>Netflix schickt einen 4-stelligen Code. Er erscheint in dieser App unter <b>Codes</b> nach ein paar Sekunden von selbst.</li>
         <li>Den Code am Fernseher eingeben und dein Profil auswählen.</li>
       </ol>
       <p style="font-weight:600;margin:6px 0 10px">Meldung „Gehört nicht zum Netflix-Haushalt“</p>
@@ -632,7 +633,7 @@ function zeigeNur(id) {
 }
 function zeigeTab(t) {
   if (!EINGELOGGT) { zeigeNur('login'); return; }
-  if (t === 'codes') { zeigeNur('codes'); laden(); }
+  if (t === 'codes') { $('tab-codes').classList.remove('neu'); zeigeNur('codes'); laden(); }
   else { anleitungFuellen(); zeigeNur('anleitung'); }
 }
 
@@ -678,75 +679,75 @@ function karte(r, alt) {
   return k;
 }
 
-let BEKANNT = [];
-async function laden(vomLogin, warten) {
+let BEKANNT = [], SIGNATUR = '';
+// vomLogin: nach Anmeldung zur Codes-Seite wechseln. still: Hintergrund-Abfrage (kein "Wird geladen", Ansicht bleibt wo sie ist).
+async function laden(vomLogin, still) {
   const status = EINGELOGGT ? $('status') : $('loginFehler');
-  if (!warten) status.textContent = 'Wird geladen …';
+  if (!still) status.textContent = 'Wird geladen …';
   try {
-    const res = await api({ aktion: 'codes', name: NAME, pw: PW, warten: !!warten, bekannt: BEKANNT });
+    const res = await api({ aktion: 'codes', name: NAME, pw: PW, warten: !!still, bekannt: BEKANNT });
     const neueIds = res.ergebnisse.filter(r => r.aktuell).map(r => r.id);
     const neuDa = neueIds.some(id => BEKANNT.indexOf(id) < 0);
+    const ersterAbruf = !EINGELOGGT;
     BEKANNT = neueIds;
     try { if ($('merken').checked) localStorage.setItem('codeapp', JSON.stringify({ n: NAME, p: PW })); else localStorage.removeItem('codeapp'); } catch (e) {}
     EINGELOGGT = true; DIENSTE = res.dienste || [];
     $('loginFehler').textContent = '';
-    if (!WARTEN) $('status').textContent = 'Stand ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+    $('status').textContent = 'Aktualisiert sich automatisch · ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr';
     $('wer').textContent = res.name;
-    $('banner').innerHTML = '';
-    if (res.hinweis) { const b = el('div', 'banner'); b.append(ico('info'), el('div', '', res.hinweis)); $('banner').appendChild(b); }
-    const akt = res.ergebnisse.filter(r => r.aktuell), alt = res.ergebnisse.filter(r => !r.aktuell);
-    $('aktuell').innerHTML = ''; $('verlauf').innerHTML = '';
-    if (!akt.length) {
-      const l = el('div', 'leer');
-      l.innerHTML = '<b>Gerade kein neuer Code.</b><br>Starte die Anmeldung am Fernseher und tippe dann auf „Auf Code warten“. Wie das geht, steht unter Anleitung.';
-      $('aktuell').appendChild(l);
+    // Nur neu zeichnen, wenn sich etwas geändert hat (oder jede Minute für Ring und Zeitangabe) – so springt nichts.
+    const sig = JSON.stringify([res.hinweis, res.ergebnisse.map(r => r.id + (r.aktuell ? 'a' : '')), Math.floor(Date.now() / 60000)]);
+    if (sig !== SIGNATUR || vomLogin) {
+      SIGNATUR = sig;
+      $('banner').innerHTML = '';
+      if (res.hinweis) { const b = el('div', 'banner'); b.append(ico('info'), el('div', '', res.hinweis)); $('banner').appendChild(b); }
+      const akt = res.ergebnisse.filter(r => r.aktuell), alt = res.ergebnisse.filter(r => !r.aktuell);
+      $('aktuell').innerHTML = ''; $('verlauf').innerHTML = '';
+      if (!akt.length) {
+        const l = el('div', 'leer');
+        l.innerHTML = '<b>Gerade kein neuer Code.</b><br>Starte die Anmeldung am Fernseher. Der Code oder Link erscheint hier nach ein paar Sekunden von selbst. Wie das geht, steht unter Anleitung.';
+        $('aktuell').appendChild(l);
+      }
+      akt.forEach(r => $('aktuell').appendChild(karte(r, false)));
+      $('verlaufBox').hidden = !alt.length;
+      $('verlaufZahl').textContent = alt.length ? '(' + alt.length + ')' : '';
+      alt.forEach(r => $('verlauf').appendChild(karte(r, true)));
     }
-    akt.forEach(r => $('aktuell').appendChild(karte(r, false)));
-    $('verlaufBox').hidden = !alt.length;
-    $('verlaufZahl').textContent = alt.length ? '(' + alt.length + ')' : '';
-    alt.forEach(r => $('verlauf').appendChild(karte(r, true)));
-    if (vomLogin || $('codes').hidden) zeigeNur('codes');
+    if (neuDa && !ersterAbruf) {
+      vibriere([180, 90, 180]);
+      if ($('codes').hidden) { toast('Neuer Code ist da – unter „Codes“'); $('tab-codes').classList.add('neu'); }
+      else toast('Neuer Code ist da');
+    }
+    if (vomLogin) { zeigeNur('codes'); pruefenStarten(); }
     return neuDa;
   } catch (err) {
-    if (EINGELOGGT && !/Passwort|gesperrt|Fehlversuche|Namen|Freigabe/.test(err.message)) { $('status').textContent = err.message; wartenStopp(); return false; }
-    wartenStopp(); EINGELOGGT = false; zeigeNur('login'); $('loginFehler').textContent = err.message; return false;
+    if (EINGELOGGT && !/Passwort|gesperrt|Fehlversuche|Namen|Freigabe/.test(err.message)) { if (!still) $('status').textContent = err.message; return false; }
+    pruefenStopp(); EINGELOGGT = false; zeigeNur('login'); $('loginFehler').textContent = err.message; return false;
   }
 }
 
-// Auf Code warten: 2 Minuten lang alle 5 Sekunden nachsehen
-let WARTEN = null;
-function wartenUmschalten() { WARTEN ? wartenStopp('Warten beendet.') : wartenStart(); }
-function wartenStart() {
-  const ende = Date.now() + 120000, k = $('wartenKnopf');
-  k.classList.add('zweit');
+// Im Hintergrund nachsehen, solange die App offen ist – egal welche Seite gerade angezeigt wird.
+// Die ersten 3 Minuten nach dem Öffnen alle 4 Sekunden, danach alle 15 Sekunden.
+let PRUEFEN = null, SCHNELL_BIS = 0;
+function pruefenStarten() {
+  SCHNELL_BIS = Date.now() + 180000;
+  if (PRUEFEN) clearTimeout(PRUEFEN);
   const runde = async () => {
-    if (!WARTEN) return;
-    const rest = Math.ceil((ende - Date.now()) / 1000);
-    if (rest <= 0) { wartenStopp('Kein neuer Code in 2 Minuten. Am Fernseher neu anfordern und noch einmal warten.'); return; }
-    k.querySelector('span').textContent = 'Warten beenden (' + rest + ' s)';
-    $('status').textContent = 'Warte auf einen neuen Code …';
-    const neu = await laden(false, true);
-    if (!WARTEN) return;
-    if (neu) { wartenStopp('Neuer Code ist da.'); toast('Neuer Code ist da'); vibriere([180, 90, 180]); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-    WARTEN = setTimeout(runde, 5000);
+    PRUEFEN = null;
+    if (!EINGELOGGT) return;
+    if (!document.hidden) await laden(false, true);
+    if (!EINGELOGGT) return;
+    PRUEFEN = setTimeout(runde, Date.now() < SCHNELL_BIS ? 4000 : 15000);
   };
-  WARTEN = setTimeout(runde, 0);
+  PRUEFEN = setTimeout(runde, 4000);
 }
-function wartenStopp(text) {
-  if (WARTEN) clearTimeout(WARTEN);
-  WARTEN = null;
-  const k = $('wartenKnopf'); if (!k) return;
-  k.classList.remove('zweit'); k.querySelector('span').textContent = 'Auf Code warten';
-  if (text) $('status').textContent = text;
-}
+function pruefenStopp() { if (PRUEFEN) clearTimeout(PRUEFEN); PRUEFEN = null; }
 function abmelden() {
-  wartenStopp(); BEKANNT = [];
+  pruefenStopp(); BEKANNT = []; SIGNATUR = '';
   try { localStorage.removeItem('codeapp'); } catch (e) {}
   NAME = ''; PW = ''; EINGELOGGT = false; $('pw').value = '';
   zeigeNur('login');
 }
-// Ring und "vor X Min." regelmäßig auffrischen, ohne neu zu laden
-setInterval(() => { if (EINGELOGGT && !$('codes').hidden && !WARTEN) laden(); }, 60000);
 
 function anleitungFuellen() {
   const finde = s => DIENSTE.find(d => d.name.toLowerCase().includes(s));
@@ -809,7 +810,7 @@ function einladungsText(name, link, bis) {
     '1. Link öffnen und dein eigenes Passwort festlegen.\n' +
     '2. App auf den Home-Bildschirm holen.\n   iPhone: in Safari auf „Teilen“ und dann „Zum Home-Bildschirm“.\n   Android: in Chrome auf „App installieren“.\n' +
     '3. Am Fernseher bei Netflix oder Prime Video die Anmeldung starten und den Code per E-Mail anfordern.\n' +
-    '4. In der App auf „Auf Code warten“ tippen. Der Code erscheint nach ein paar Sekunden.\n\n' +
+    '4. Die App öffnen. Der Code erscheint nach ein paar Sekunden von selbst.\n\n' +
     'Unter „Anleitung“ in der App steht alles noch einmal Schritt für Schritt.\n\n' +
     'Wichtig: Der Link gilt bis ' + new Date(bis).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) + ' und funktioniert nur einmal. Bitte nicht weitergeben.';
 }
@@ -937,7 +938,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) return;
   api({ aktion: 'config' }).then(themeAnwenden).catch(() => {});   // Design vom Admin übernehmen
   if (SW_REG) SW_REG.update().catch(() => {});                        // nach neuer App-Version sehen
-  if (EINGELOGGT && !$('codes').hidden) laden();
+  if (EINGELOGGT) { laden(false, true); pruefenStarten(); }
 });
 route();
 
@@ -946,7 +947,7 @@ route();
 var SW_REG = null, UPDATE_DA = false;
 // Neu laden nur, wenn dabei nichts verloren geht: nicht in der Verwaltung, nicht beim Warten, kein Feld ausgefüllt.
 function neustartWennRuhig() {
-  if (!UPDATE_DA || document.hidden || WARTEN || TOKEN) return;
+  if (!UPDATE_DA || document.hidden || TOKEN) return;
   const offen = [...document.querySelectorAll('.seite')].find(x => !x.hidden);
   if (offen && ['adminLogin', 'adminPanel', 'einladung'].includes(offen.id)) return;
   if ([...document.querySelectorAll('input:not([type=checkbox]):not([type=radio]), textarea')].some(i => i.value && i.id !== 'name')) return;
